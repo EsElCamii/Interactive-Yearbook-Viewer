@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Book</title>
+    <link rel="stylesheet" href="./style.css" />
+    <script src="./main.js" defer></script>
+    <script
+      src="https://kit.fontawesome.com/ad35aef98c.js"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <!-- Book -->
+    <div id="book" class="book">
+      <div id="animated-circle-left">
+        <span class="click-here"><h1>Prev</h1></span>
+      </div>
+      <div id="animated-circle">
+        <span class="click-here"><h1>Next</h1></span>
+      </div>
+    </div>
+
+    <!-- Navigation Buttons -->
+    <div id="navigation-buttons">
+      <button class="skip-button" onclick="goToPage(5)">Page 5</button>
+      <button class="skip-button" onclick="goToPage(10)">Page 10</button>
+      <button class="skip-button" onclick="goToPage(19)">Page 19</button>
+      <button class="skip-button" onclick="goToPage(30)">Page 30</button>
+      <button class="skip-button" onclick="goToPage(32)">Page 32</button>
+      <button class="skip-button" onclick="goToPage(37)">Page 37</button>
+    </div>
+
+    <!-- Previous and Next Buttons -->
+    <button id="prev-btn"></button>
+    <button id="next-btn"></button>
+  </body>
+</html>

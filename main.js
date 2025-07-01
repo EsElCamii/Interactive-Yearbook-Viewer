@@ -76,8 +76,15 @@ function preloadImage(src) {
   });
 }
 
+// Function to create a low-quality image path
+function getLQIPPath(originalPath) {
+  const parts = originalPath.split('.');
+  const ext = parts.pop();
+  return `${parts.join('.')}-lq.${ext}`;
+}
+
 // Function to create a page with image
-async function createPageWithImage(pageNumber, isFront) {
+function createPageWithImage(pageNumber, isFront) {
   const page = document.createElement("div");
   page.className = isFront ? "front" : "back";
   
@@ -88,36 +95,70 @@ async function createPageWithImage(pageNumber, isFront) {
   // Calculate image number (1-2 images per page)
   const imgNumber = isFront ? pageNumber * 2 - 1 : pageNumber * 2;
   const imgPath = `Photos/${imgNumber}.png`;
+  const lqipPath = getLQIPPath(imgPath);
   
-  // Create image element
-  const img = document.createElement("img");
+  // Create image container
+  const imgContainer = document.createElement('div');
+  imgContainer.className = 'image-container';
+  
+  // Create low-quality image placeholder
+  const lqip = new Image();
+  lqip.src = lqipPath;
+  lqip.className = 'lqip';
+  lqip.alt = `Loading page ${imgNumber}...`;
+  imgContainer.appendChild(lqip);
+  
+  // Create full-quality image (will be loaded when needed)
+  const img = new Image();
+  img.className = 'full-image';
   img.alt = `Page ${imgNumber}`;
+  img.loading = 'lazy';
   
-  // Show loading state
-  const loadingDiv = document.createElement('div');
-  loadingDiv.className = 'loading-state';
-  loadingDiv.textContent = 'Loading...';
-  content.appendChild(loadingDiv);
+  // Store image path as data attribute for lazy loading
+  img.dataset.src = imgPath;
   
-  // Preload image
-  const loadedImg = await preloadImage(imgPath);
+  // Add loading class
+  imgContainer.classList.add('loading');
   
-  // Remove loading state
-  content.removeChild(loadingDiv);
+  // Create intersection observer for lazy loading
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const img = entry.target;
+        if (img.dataset.src) {
+          // Load the full image
+          img.src = img.dataset.src;
+          img.onload = () => {
+            imgContainer.classList.add('loaded');
+            imgContainer.classList.remove('loading');
+          };
+          img.onerror = () => {
+            const placeholder = document.createElement('div');
+            placeholder.className = 'placeholder';
+            placeholder.textContent = isFront ? `Front ${pageNumber}` : `Back ${pageNumber}`;
+            imgContainer.innerHTML = '';
+            imgContainer.appendChild(placeholder);
+          };
+          img.removeAttribute('data-src');
+        }
+        observer.unobserve(img);
+      }
+    });
+  }, {
+    rootMargin: '200px', // Start loading when within 200px of viewport
+    threshold: 0.01
+  });
   
-  if (loadedImg) {
-    img.src = imgPath;
-    content.appendChild(img);
-  } else {
-    // If image doesn't exist, show a placeholder
-    const placeholder = document.createElement('div');
-    placeholder.className = 'placeholder';
-    placeholder.textContent = isFront ? `Front ${pageNumber}` : `Back ${pageNumber}`;
-    content.appendChild(placeholder);
-  }
+  // Observe the image
+  observer.observe(img);
   
-  // Append content to page
+  imgContainer.appendChild(img);
+  content.appendChild(imgContainer);
   page.appendChild(content);
+  
+  // Store observer for cleanup if needed
+  page._observer = observer;
+  
   return page;
 }
 

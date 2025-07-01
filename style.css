@@ -114,8 +114,8 @@ html, body {
   .book {
     top: 0%;
     position: relative;
-    width: 60vmin;
-    height: 30vmin; /* 1:2 aspect ratio */
+    width: 78vmin;
+    height: 39vmin; /* 1:2 aspect ratio */
     min-width: 300px;
     min-height: 150px;
     max-width: 800px;

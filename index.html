@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+        <title>Book</title>
+        <link rel="stylesheet" href="./style.css"/>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/gsap.min.js"></script>
+        <script src="./main.js" type="module"></script>
+        <script src="https://kit.fontawesome.com/ad35aef98c.js" crossorigin="anonymous"></script>
+    </head>
+    <body>
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="loading-overlay">
+            <div class="spinner"></div>
+            <p>Loading book...</p>
+        </div>
+        
+        <!-- Introduction Screen -->
+        <div id="intro-screen" class="intro-screen">
+            <div id="intro-content"></div>
+        </div>
+        
+        <!-- Book (initially hidden) -->
+        <div id="book" class="book" style="display: none;">
+            <div id="animated-circle-left">
+                <span class="click-here">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </span>
+            </div>
+            <div id="animated-circle">
+                <span class="click-here">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </span>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div id="navigation-buttons">
+            <button class="skip-button" onclick="goToPage(5)">Page 5</button>
+            <button class="skip-button" onclick="goToPage(10)">Page 10</button>
+            <button class="skip-button" onclick="goToPage(19)">Page 19</button>
+            <button class="skip-button" onclick="goToPage(30)">Page 30</button>
+            <button class="skip-button" onclick="goToPage(32)">Page 32</button>
+            <button class="skip-button" onclick="goToPage(37)">Page 37</button>
+        </div>
+    </body>
+</html>

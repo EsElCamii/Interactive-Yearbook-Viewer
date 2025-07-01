@@ -28,7 +28,7 @@ function initBook() {
 
 // Show introduction animation
 function showIntroduction() {
-    const text = "Bienvenido al Anuario Noorwijk";
+    const text = "Bienvenido al anuario Noordwijk";
     const introText = document.createElement('div');
     introText.className = 'intro-text';
     introContent.appendChild(introText);
@@ -182,20 +182,23 @@ function adjustButtonTransforms() {
 // Navigate to the next page
 function goNextPage() {
   if (currentLocation < maxLocation) {
-    const paper = document.querySelector(`#p${currentLocation}`);
-    if (paper) {
-      paper.classList.add("flipped");
-      paper.style.zIndex = currentLocation;
+    const currentPaper = document.querySelector(`#p${currentLocation}`);
+    if (currentPaper) {
+      // Update the current page
+      currentPaper.classList.add("flipped");
+      currentPaper.style.zIndex = currentLocation;
 
+      // Update the book state
       if (currentLocation === 1) openBook();
       else if (currentLocation === numOfPapers) closeBook(false);
 
+      // Move to the next page
       currentLocation++;
       
-      // Update z-index of the next page to be on top
+      // Update z-index of the new current page to be on top
       const nextPaper = document.querySelector(`#p${currentLocation}`);
       if (nextPaper) {
-        nextPaper.style.zIndex = numOfPapers;
+        nextPaper.style.zIndex = numOfPapers + 1;
       }
     }
   }
@@ -204,15 +207,26 @@ function goNextPage() {
 // Navigate to the previous page
 function goPrevPage() {
   if (currentLocation > 1) {
-    const paper = document.querySelector(`#p${currentLocation - 1}`);
-    if (paper) {
-      paper.classList.remove("flipped");
-      paper.style.zIndex = numOfPapers - currentLocation + 2;
-
+    const prevPaper = document.querySelector(`#p${currentLocation - 1}`);
+    if (prevPaper) {
+      // Remove the flipped class to show the previous page
+      prevPaper.classList.remove("flipped");
+      
+      // Set a proper z-index for the previous page
+      prevPaper.style.zIndex = numOfPapers;
+      
+      // Update the book state
       if (currentLocation === 2) closeBook(true);
       else if (currentLocation === numOfPapers + 1) book.style.transform = "translateX(50%)";
 
+      // Decrement the current location after updating the UI
       currentLocation--;
+      
+      // Reset z-index of the next page to be behind
+      const currentPaper = document.querySelector(`#p${currentLocation + 1}`);
+      if (currentPaper) {
+        currentPaper.style.zIndex = currentLocation + 1;
+      }
     }
   }
 }

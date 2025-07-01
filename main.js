@@ -63,7 +63,7 @@ window.addEventListener('load', showIntroduction);
 
 // Business Logic
 let currentLocation = 1;
-let numOfPapers = 47;
+let numOfPapers = 50;
 let maxLocation = numOfPapers + 1;
 
 // Function to preload an image

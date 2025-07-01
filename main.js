@@ -158,7 +158,7 @@ async function createPapers() {
 function centerAnimatedCircleLeft() {
   const bookHeight = book.offsetHeight;
   clickPrev.style.top = `${bookHeight / 2}px`;
-  clickPrev.style.left = '-64vmin';
+  clickPrev.style.left = '-82vmin';
   clickPrev.style.transform = 'translateY(-50%)';
 }
 
@@ -179,27 +179,39 @@ function adjustButtonTransforms() {
   // since we're using the animated circles instead of prev/next buttons
 }
 
+// Helper function to update z-indices
+function updateZIndices() {
+  // Set all pages to default z-index
+  for (let i = 1; i <= numOfPapers; i++) {
+    const paper = document.querySelector(`#p${i}`);
+    if (paper) {
+      paper.style.zIndex = numOfPapers - Math.abs(currentLocation - i);
+    }
+  }
+  // Set the current page to be on top
+  const currentPaper = document.querySelector(`#p${currentLocation}`);
+  if (currentPaper) {
+    currentPaper.style.zIndex = numOfPapers + 1;
+  }
+}
+
 // Navigate to the next page
 function goNextPage() {
   if (currentLocation < maxLocation) {
     const currentPaper = document.querySelector(`#p${currentLocation}`);
     if (currentPaper) {
-      // Update the current page
+      // Flip the current page
       currentPaper.classList.add("flipped");
-      currentPaper.style.zIndex = currentLocation;
-
+      
       // Update the book state
       if (currentLocation === 1) openBook();
       else if (currentLocation === numOfPapers) closeBook(false);
-
+      
       // Move to the next page
       currentLocation++;
       
-      // Update z-index of the new current page to be on top
-      const nextPaper = document.querySelector(`#p${currentLocation}`);
-      if (nextPaper) {
-        nextPaper.style.zIndex = numOfPapers + 1;
-      }
+      // Update z-indices for all pages
+      updateZIndices();
     }
   }
 }
@@ -207,26 +219,24 @@ function goNextPage() {
 // Navigate to the previous page
 function goPrevPage() {
   if (currentLocation > 1) {
-    const prevPaper = document.querySelector(`#p${currentLocation - 1}`);
+    // First, update the current location before changing UI
+    currentLocation--;
+    
+    // Update the book state
+    if (currentLocation === 1) closeBook(true);
+    
+    // Remove the flipped class from the previous page
+    const prevPaper = document.querySelector(`#p${currentLocation}`);
     if (prevPaper) {
-      // Remove the flipped class to show the previous page
       prevPaper.classList.remove("flipped");
-      
-      // Set a proper z-index for the previous page
-      prevPaper.style.zIndex = numOfPapers;
-      
-      // Update the book state
-      if (currentLocation === 2) closeBook(true);
-      else if (currentLocation === numOfPapers + 1) book.style.transform = "translateX(50%)";
-
-      // Decrement the current location after updating the UI
-      currentLocation--;
-      
-      // Reset z-index of the next page to be behind
-      const currentPaper = document.querySelector(`#p${currentLocation + 1}`);
-      if (currentPaper) {
-        currentPaper.style.zIndex = currentLocation + 1;
-      }
+    }
+    
+    // Update z-indices for all pages
+    updateZIndices();
+    
+    // If we're at the first page, make sure the book is closed
+    if (currentLocation === 1) {
+      closeBook(true);
     }
   }
 }

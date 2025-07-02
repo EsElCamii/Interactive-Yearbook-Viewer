@@ -98,6 +98,7 @@ html, body {
     justify-content: center;
     align-items: center;
     font-family: 'Inter', sans-serif;
+    position: relative;
     background-color: #e3e3e3; /* Light gray background */
     overflow-y: auto;
     letter-spacing: -0.070em; /* Apply letter spacing to body text */
@@ -182,7 +183,41 @@ img {
     transform: translateZ(0);
 }
   
-  @media only screen and (max-width: 600px) and (orientation: portrait) {
+  #navigation-buttons {
+    position: fixed;
+    bottom: 20px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    z-index: 100;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.skip-button {
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+
+.skip-button:hover {
+    background-color: #2980b9;
+}
+
+.skip-button:active {
+    transform: translateY(1px);
+}
+
+@media only screen and (max-width: 600px) and (orientation: portrait) {
     body {
       overflow: hidden;
     }

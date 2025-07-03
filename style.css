@@ -6,6 +6,33 @@ html, body {
     position: relative;
 }
 
+/* Media Overlay for dynamic videos */
+.media-overlay {
+    /* Developer positioning via CSS vars */
+    --translate-x: 0px;
+    --translate-y: 0px;
+    /* Hidden by default; JS shows/hides overlay */
+    display: none;
+    /* Ensure overlay sits above all content */
+    z-index: 10000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    transform: translate(var(--translate-x), var(--translate-y));
+    pointer-events: none;
+}
+
+.media-overlay video {
+    /* Set custom size and crop from top */
+    width: 29vmin;
+    max-height: 33vmin;
+    height: auto;
+    object-fit: cover;
+    object-position: top 20%;
+    border-radius: 0;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
 /* Loading Overlay */
 .loading-overlay {
     position: fixed;
@@ -210,7 +237,7 @@ img {
   
   #navigation-buttons {
     position: fixed;
-    bottom: 20px;
+    bottom: 4.63vh;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -220,7 +247,7 @@ img {
     padding: 15px 25px;
     z-index: 100;
     background-color: transparent;
-    max-width: 90%;
+    width: 90vw;
     transition: all 0.3s ease;
 }
 
@@ -245,7 +272,6 @@ img {
     background-position: right center;
     background-size: 200% auto;
     transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(4, 0, 255, 0.3);
 }
 
 .skip-button:active {

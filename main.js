@@ -5,6 +5,34 @@ const clickPrev = document.querySelector("#animated-circle-left");
 const introScreen = document.getElementById('intro-screen');
 const introContent = document.getElementById('intro-content');
 
+// Media overlay elements for dynamic videos
+const mediaOverlay = document.getElementById('media-overlay');
+const dynamicVideo = document.getElementById('dynamic-video');
+
+// Mapping of page numbers to video configuration
+// translateX and translateY are in pixels and control positioning
+
+const videosConfig = {
+    38: { src: 'Videos/diaMuertos.mp4', translateX: '15.5vmin', translateY: '51vmin', width: '26vmin' },
+    36: { src: 'Videos/yoga.MOV', translateX: '14vmin', translateY: '34vmin' },
+    43: [
+        { src: 'Videos/ivan.MOV', translateX: '51vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '32vmin' },
+        { src: 'Videos/flag.mp4', translateX: '16.5vmin', translateY: '34.5vmin', width: '27vmin', maxHeight: '15vmin' },
+        { src: 'Videos/baile.mp4', translateX: '16vmin', translateY: '51.3vmin', width: '30vmin', maxHeight: '15vmin' },
+    ],
+    // Photo 90 is the back of paper 45, which is page 46
+    46: [
+        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: 'Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: 'Videos/ball.MOV', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
+    ],
+    // Photo 91 is the back of paper 45, which is page 47
+    49: [
+        { src: 'Videos/music.mp4', translateX: '50.2vmin', translateY: '34.7vmin', width: '32.5vmin', height: '35.4vmin' }
+    ],
+    // Add more pages => {src, translateX, translateY} as needed
+};
+
 // Initialize the book
 function initBook() { // Show the book
     book.style.display = 'block';
@@ -235,6 +263,61 @@ function updateZIndices() { // Set all pages to default z-index
     }
 }
 
+// Helper: update media (video) visibility for current page
+function updateMediaForPage(pageNumber) {
+    const config = videosConfig[pageNumber];
+    
+    // Clear any existing videos
+    mediaOverlay.innerHTML = '';
+    
+    if (config) {
+        // Handle array of videos
+        const videos = Array.isArray(config) ? config : [config];
+        
+        videos.forEach(videoConfig => {
+            const video = document.createElement('video');
+            video.muted = true;
+            video.loop = true;
+            video.src = videoConfig.src;
+            
+            // Position and size the video
+            video.style.position = 'fixed';
+            video.style.width = videoConfig.width || '29vmin';
+            if (videoConfig.height) {
+                video.style.height = videoConfig.height;
+            } else if (videoConfig.maxHeight) {
+                video.style.maxHeight = videoConfig.maxHeight;
+                video.style.height = 'auto';
+            }
+            video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
+            video.style.objectFit = 'cover';
+            video.style.objectPosition = 'top 20%';
+            video.style.borderRadius = '0';
+            video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+            
+            // Add error handling
+            video.onerror = function() {
+                console.error('Error loading video:', videoConfig.src);
+                const errorDiv = document.createElement('div');
+                errorDiv.textContent = 'Video not found: ' + videoConfig.src;
+                errorDiv.style.color = 'red';
+                errorDiv.style.position = 'fixed';
+                errorDiv.style.transform = video.style.transform;
+                mediaOverlay.appendChild(errorDiv);
+            };
+            
+            mediaOverlay.appendChild(video);
+            video.play().catch(error => {
+                console.error('Error playing video:', videoConfig.src, error);
+            });
+        });
+        
+        mediaOverlay.style.display = 'block';
+    } else {
+        mediaOverlay.style.display = 'none';
+    }
+}
+
 // Navigate to the next page
 function goNextPage() {
     if (currentLocation < maxLocation) {
@@ -254,6 +337,8 @@ function goNextPage() {
 
             // Update z-indices for all pages
             updateZIndices();
+            // Update media overlay for the new page
+            updateMediaForPage(currentLocation);
         }
     }
 }
@@ -279,6 +364,8 @@ function goPrevPage() {
 
         // Update z-indices for all pages
         updateZIndices();
+        // Update media overlay for the new page
+        updateMediaForPage(currentLocation);
     }
 }
 
@@ -328,5 +415,6 @@ window.goToPage = function(pageNumber) {
         }
     }
     
+    updateMediaForPage(pageNumber);
     console.log(`Navigated to page ${pageNumber}`);
 }

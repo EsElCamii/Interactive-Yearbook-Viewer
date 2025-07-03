@@ -13,25 +13,82 @@ const dynamicVideo = document.getElementById('dynamic-video');
 // translateX and translateY are in pixels and control positioning
 
 const videosConfig = {
-    38: { src: 'Videos/diaMuertos.mp4', translateX: '15.5vmin', translateY: '51vmin', width: '26vmin' },
-    36: { src: 'Videos/yoga.MOV', translateX: '14vmin', translateY: '34vmin' },
+    // Page 38 - diaMuertos
+    38: { 
+        type: 'streamable', 
+        id: 'j83r02',
+        translateX: '15.5vmin', 
+        translateY: '51vmin', 
+        width: '26vmin' 
+    },
+    // Page 36 - yoga
+    36: { 
+        type: 'streamable',
+        id: 'xqzzup',
+        translateX: '14vmin', 
+        translateY: '34vmin' 
+    },
+    // Page 43 - Multiple videos
     43: [
-        { src: 'Videos/ivan.MOV', translateX: '51vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '32vmin' },
-        { src: 'Videos/flag.mp4', translateX: '16.5vmin', translateY: '34.5vmin', width: '27vmin', maxHeight: '15vmin' },
-        { src: 'Videos/baile.mp4', translateX: '16vmin', translateY: '51.3vmin', width: '30vmin', maxHeight: '15vmin' },
+        { 
+            type: 'streamable',
+            id: 'xqln22', // ivan
+            translateX: '51vmin', 
+            translateY: '34.5vmin', 
+            width: '26.5vmin', 
+            maxHeight: '32vmin' 
+        },
+        { 
+            type: 'streamable',
+            id: 'mj14u0', // flag
+            translateX: '16.5vmin', 
+            translateY: '34.5vmin', 
+            width: '27vmin', 
+            maxHeight: '15vmin' 
+        },
+        { 
+            type: 'streamable',
+            id: 'itzb6z', // baile
+            translateX: '16vmin', 
+            translateY: '51.3vmin', 
+            width: '30vmin', 
+            maxHeight: '15vmin' 
+        }
     ],
-    // Photo 90 is the back of paper 45, which is page 46
+    // Page 46 - Multiple videos
     46: [
-        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/ball.MOV', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { 
+            type: 'streamable',
+            id: 'o6ezsz', // agua-baile
+            translateX: '17vmin', 
+            translateY: '34.5vmin', 
+            width: '26.5vmin', 
+            maxHeight: '18vmin' 
+        },
+        { 
+            type: 'streamable',
+            id: 'o6jr7j', // mecanico
+            translateX: '50vmin', 
+            translateY: '50.5vmin', 
+            width: '26.5vmin', 
+            maxHeight: '18vmin' 
+        }
     ],
-    // Photo 91 is the back of paper 45, which is page 47
+    // Page 49 - music
     49: [
-        { src: 'Videos/music.mp4', translateX: '50.2vmin', translateY: '34.7vmin', width: '32.5vmin', height: '35.4vmin' }
-    ],
-    // Add more pages => {src, translateX, translateY} as needed
+        { 
+            type: 'streamable',
+            id: 'kzgcub',
+            translateX: '50.2vmin', 
+            translateY: '34.7vmin', 
+            width: '32.5vmin', 
+            height: '35.4vmin' 
+        }
+    ]
 };
+
+// Dynamic root margin for lazy loading based on device performance
+const dynamicRootMargin = (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 4) ? '150px' : '300px';
 
 // Initialize the book
 function initBook() { // Show the book
@@ -136,6 +193,12 @@ function createPageWithImage(pageNumber, isFront) {
     lqip.alt = `Loading page ${imgNumber}...`;
     imgContainer.appendChild(lqip);
 
+    // Loading message overlay
+    const loadingText = document.createElement('div');
+    loadingText.className = 'loading-state';
+    loadingText.textContent = 'Cargando...';
+    imgContainer.appendChild(loadingText);
+
     // Create full-quality image (will be loaded when needed)
     const img = new Image();
     img.className = 'full-image';
@@ -158,8 +221,10 @@ function createPageWithImage(pageNumber, isFront) {
                     img.onload = () => {
                         imgContainer.classList.add('loaded');
                         imgContainer.classList.remove('loading');
+                        loadingText.style.display = 'none';
                     };
                     img.onerror = () => {
+                        loadingText.style.display = 'none';
                         const placeholder = document.createElement('div');
                         placeholder.className = 'placeholder';
                         placeholder.textContent = isFront ? `Front ${pageNumber}` : `Back ${pageNumber}`;
@@ -172,7 +237,7 @@ function createPageWithImage(pageNumber, isFront) {
             }
         });
     }, {
-        rootMargin: '200px', // Start loading when within 200px of viewport
+        rootMargin: dynamicRootMargin, // Dynamic based on device capability
         threshold: 0.01
     });
 
@@ -275,47 +340,93 @@ function updateMediaForPage(pageNumber) {
         const videos = Array.isArray(config) ? config : [config];
         
         videos.forEach(videoConfig => {
-            const video = document.createElement('video');
-            video.muted = true;
-            video.loop = true;
-            video.src = videoConfig.src;
-            
-            // Position and size the video
-            video.style.position = 'fixed';
-            video.style.width = videoConfig.width || '29vmin';
-            if (videoConfig.height) {
-                video.style.height = videoConfig.height;
-            } else if (videoConfig.maxHeight) {
-                video.style.maxHeight = videoConfig.maxHeight;
-                video.style.height = 'auto';
+            if (videoConfig.type === 'streamable') {
+                // Create container for Streamable embed
+                const container = document.createElement('div');
+                container.style.position = 'fixed';
+                container.style.width = videoConfig.width || '29vmin';
+                if (videoConfig.height) {
+                    container.style.height = videoConfig.height;
+                } else if (videoConfig.maxHeight) {
+                    container.style.maxHeight = videoConfig.maxHeight;
+                    container.style.height = 'auto';
+                }
+                container.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
+                container.style.overflow = 'hidden';
+                container.style.borderRadius = '0';
+                container.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+                
+                // Create iframe for Streamable embed
+                const iframe = document.createElement('iframe');
+                iframe.src = `https://streamable.com/e/${videoConfig.id}?controls=0&muted=1&autoplay=1&loop=1`;
+                iframe.width = '100%';
+                iframe.height = '100%';
+                iframe.frameBorder = '0';
+                iframe.allow = 'autoplay';
+                iframe.allowFullscreen = true;
+                iframe.style.border = 'none';
+                
+                container.appendChild(iframe);
+                mediaOverlay.appendChild(container);
+                
+            } else {
+                // Fallback for direct video files (optional)
+                const video = document.createElement('video');
+                video.muted = true;
+                video.loop = true;
+                video.src = videoConfig.src;
+                
+                video.style.position = 'fixed';
+                video.style.width = videoConfig.width || '29vmin';
+                if (videoConfig.height) {
+                    video.style.height = videoConfig.height;
+                } else if (videoConfig.maxHeight) {
+                    video.style.maxHeight = videoConfig.maxHeight;
+                    video.style.height = 'auto';
+                }
+                video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
+                video.style.objectFit = 'cover';
+                video.style.objectPosition = 'top 20%';
+                video.style.borderRadius = '0';
+                video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+                
+                video.onerror = function() {
+                    console.error('Error loading video:', videoConfig.src);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.textContent = 'Video not found';
+                    errorDiv.style.color = 'red';
+                    errorDiv.style.position = 'fixed';
+                    errorDiv.style.transform = video.style.transform;
+                    mediaOverlay.appendChild(errorDiv);
+                };
+                
+                mediaOverlay.appendChild(video);
+                video.play().catch(error => {
+                    console.error('Error playing video:', videoConfig.src, error);
+                });
             }
-            video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
-            video.style.objectFit = 'cover';
-            video.style.objectPosition = 'top 20%';
-            video.style.borderRadius = '0';
-            video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
-            
-            // Add error handling
-            video.onerror = function() {
-                console.error('Error loading video:', videoConfig.src);
-                const errorDiv = document.createElement('div');
-                errorDiv.textContent = 'Video not found: ' + videoConfig.src;
-                errorDiv.style.color = 'red';
-                errorDiv.style.position = 'fixed';
-                errorDiv.style.transform = video.style.transform;
-                mediaOverlay.appendChild(errorDiv);
-            };
-            
-            mediaOverlay.appendChild(video);
-            video.play().catch(error => {
-                console.error('Error playing video:', videoConfig.src, error);
-            });
         });
         
         mediaOverlay.style.display = 'block';
     } else {
         mediaOverlay.style.display = 'none';
     }
+}
+
+// Preload images for pages adjacent to the current one
+function preloadAdjacentPages() {
+    const pagesToPreload = [currentLocation - 1, currentLocation + 1];
+    pagesToPreload.forEach(pageNum => {
+        if (pageNum < 1 || pageNum >= maxLocation) return;
+        const pageEl = document.querySelector(`#p${pageNum}`);
+        if (!pageEl) return;
+        pageEl.querySelectorAll('.full-image').forEach(img => {
+            if (img.dataset && img.dataset.src) {
+                img.src = img.dataset.src;
+                img.removeAttribute('data-src');
+            }
+        });
+    });
 }
 
 // Navigate to the next page
@@ -339,6 +450,7 @@ function goNextPage() {
             updateZIndices();
             // Update media overlay for the new page
             updateMediaForPage(currentLocation);
+            preloadAdjacentPages();
         }
     }
 }
@@ -366,6 +478,7 @@ function goPrevPage() {
         updateZIndices();
         // Update media overlay for the new page
         updateMediaForPage(currentLocation);
+            preloadAdjacentPages();
     }
 }
 

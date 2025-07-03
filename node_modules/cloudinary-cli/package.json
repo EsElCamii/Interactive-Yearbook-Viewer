@@ -1,0 +1,38 @@
+{
+	"name": "cloudinary-cli",
+	"version": "1.1.2",
+	"description": "A command-line interface into cloudinary",
+	"main": "cloudinary.js",
+	"bin": {
+		"cloudinary": "cloudinary.js"
+	},
+	"scripts": {
+		"lint-eslint": "./node_modules/.bin/eslint cloudinary*.js lib/*",
+		"test": "npm run lint-eslint"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/pcon/cloudinary-cli.git"
+	},
+	"keywords": [
+		"cloudinary",
+		"cli"
+	],
+	"author": "Patrick Connelly <patrick@deadlypenguin.com> (http://deadlypenguin.com)",
+	"license": "GPL-2.0",
+	"bugs": {
+		"url": "https://github.com/pcon/cloudinary-cli/issues"
+	},
+	"homepage": "https://github.com/pcon/cloudinary-cli#readme",
+	"dependencies": {
+		"chalk": "^2.4.2",
+		"cloudinary": "1.15.0",
+		"commander": "3.0.2",
+		"lodash": "4.17.19",
+		"q": "1.5.1",
+		"yargs": "^14.2.0"
+	},
+	"devDependencies": {
+		"eslint": "^6.5.1"
+	}
+}

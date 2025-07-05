@@ -2,22 +2,28 @@
   "version": 2,
   "builds": [
     {
-      "src": "**/*.{js,html,css,json}",
+      "src": "**/*.{js,html,css,json,png,jpg,jpeg,gif,svg,mp4,mov}",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/Videos/(.*\\.mp4)",
+      "src": "/Videos/(.*\\.(mp4|mov))",
       "headers": {
         "Content-Type": "video/mp4",
         "Cache-Control": "public, max-age=31536000, immutable"
       }
     },
     {
-      "src": "/(.*\\.(js|css|json|html|ico|png|jpg|jpeg|gif|svg))",
+      "src": "/(.*\\.(png|jpg|jpeg|gif|svg))",
       "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|json|html))",
+      "headers": {
+        "Cache-Control": "public, max-age=0, must-revalidate"
       }
     },
     {

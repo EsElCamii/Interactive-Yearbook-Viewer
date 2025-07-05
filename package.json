@@ -1,10 +1,31 @@
 {
+  "name": "anuario-noorwijk",
+  "version": "1.0.0",
+  "description": "Interactive Yearbook Viewer for Noorwijk School",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx serve",
+    "build": "echo 'No build step required for static site'"
+  },
   "dependencies": {
     "@vercel/speed-insights": "^1.2.0",
-    "cloudinary": "^2.7.0",
     "gsap": "^3.13.0"
   },
   "devDependencies": {
-    "cloudinary-cli": "^1.1.2"
-  }
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=14.x"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EsElCamii/Interactive-Yearbook-Viewer.git"
+  },
+  "keywords": [
+    "yearbook",
+    "interactive",
+    "noorwijk"
+  ],
+  "author": "Camilo Quirós Mendoza",
+  "license": "MIT"
 }

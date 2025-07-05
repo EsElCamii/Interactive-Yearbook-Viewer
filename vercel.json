@@ -1,4 +1,16 @@
 {
-  "buildCommand": "git lfs pull && npm install",
-  "installCommand": "git lfs install && git lfs pull && npm install"
+  "version": 2,
+  "builds": [
+    {
+      "src": "*.{html,js,css,json}",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    { "src": "/Videos/.*", "dest": "/Videos/", "headers": { "Content-Type": "video/mp4" } },
+    { "handle": "filesystem" },
+    { "src": "/.*", "dest": "/index.html" }
+  ],
+  "buildCommand": "git lfs pull",
+  "installCommand": "git lfs install && git lfs pull"
 }

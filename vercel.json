@@ -2,7 +2,7 @@
   "version": 2,
   "builds": [
     {
-      "src": "*.{html,js,css,json}",
+      "src": "**/*.{js,html,css,json}",
       "use": "@vercel/static"
     }
   ],
@@ -11,6 +11,12 @@
       "src": "/Videos/(.*\\.mp4)",
       "headers": {
         "Content-Type": "video/mp4",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|css|json|html|ico|png|jpg|jpeg|gif|svg))",
+      "headers": {
         "Cache-Control": "public, max-age=31536000, immutable"
       }
     },

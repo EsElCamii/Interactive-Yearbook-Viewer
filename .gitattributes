@@ -12,3 +12,5 @@ Photos/*.jpg filter=lfs diff=lfs merge=lfs -text
 Photos/*.jpeg filter=lfs diff=lfs merge=lfs -text
 Photos/*.gif filter=lfs diff=lfs merge=lfs -text
 Photos/*.svg filter=lfs diff=lfs merge=lfs -text
+Videos/fuego.mp4 filter=lfs diff=lfs merge=lfs -text
+Videos/ball.mp4 filter=lfs diff=lfs merge=lfs -text

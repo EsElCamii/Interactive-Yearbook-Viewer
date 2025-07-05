@@ -13,78 +13,24 @@ const dynamicVideo = document.getElementById('dynamic-video');
 // translateX and translateY are in pixels and control positioning
 
 const videosConfig = {
-    // Page 38 - diaMuertos
-    38: { 
-        type: 'streamable', 
-        id: 'j83r02',
-        translateX: '15.5vmin', 
-        translateY: '51vmin', 
-        width: '26vmin' 
-    },
-    // Page 36 - yoga
-    36: { 
-        type: 'streamable',
-        id: 'xqzzup',
-        translateX: '14vmin', 
-        translateY: '34vmin' 
-    },
-    // Page 43 - Multiple videos
+    38: { src: 'Videos/diaMuertos.mp4', translateX: '15.5vmin', translateY: '51vmin', width: '26vmin' },
+    36: { src: 'Videos/yoga.mp4', translateX: '14vmin', translateY: '34vmin' },
     43: [
-        { 
-            type: 'streamable',
-            id: 'xqln22', // ivan
-            translateX: '51vmin', 
-            translateY: '34.5vmin', 
-            width: '26.5vmin', 
-            maxHeight: '32vmin' 
-        },
-        { 
-            type: 'streamable',
-            id: 'mj14u0', // flag
-            translateX: '16.5vmin', 
-            translateY: '34.5vmin', 
-            width: '27vmin', 
-            maxHeight: '15vmin' 
-        },
-        { 
-            type: 'streamable',
-            id: 'itzb6z', // baile
-            translateX: '16vmin', 
-            translateY: '51.3vmin', 
-            width: '30vmin', 
-            maxHeight: '15vmin' 
-        }
+        { src: 'Videos/ivan.mp4', translateX: '51vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '32vmin' },
+        { src: 'Videos/flag.mp4', translateX: '16.5vmin', translateY: '34.5vmin', width: '27vmin', maxHeight: '15vmin' },
+        { src: 'Videos/baile.mp4', translateX: '16vmin', translateY: '51.3vmin', width: '30vmin', maxHeight: '15vmin' },
     ],
-    // Page 46 - Multiple videos
+    // Photo 90 is the back of paper 45, which is page 46
     46: [
-        { 
-            type: 'streamable',
-            id: 'o6ezsz', // agua-baile
-            translateX: '17vmin', 
-            translateY: '34.5vmin', 
-            width: '26.5vmin', 
-            maxHeight: '18vmin' 
-        },
-        { 
-            type: 'streamable',
-            id: 'o6jr7j', // mecanico
-            translateX: '50vmin', 
-            translateY: '50.5vmin', 
-            width: '26.5vmin', 
-            maxHeight: '18vmin' 
-        }
+        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: 'Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: 'Videos/baile.mp4', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
     ],
-    // Page 49 - music
+    // Photo 91 is the back of paper 45, which is page 47
     49: [
-        { 
-            type: 'streamable',
-            id: 'kzgcub',
-            translateX: '50.2vmin', 
-            translateY: '34.7vmin', 
-            width: '32.5vmin', 
-            height: '35.4vmin' 
-        }
-    ]
+        { src: 'Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
+    ],
+    // Add more pages => {src, translateX, translateY} as needed
 };
 
 // Dynamic root margin for lazy loading based on device performance
@@ -340,71 +286,41 @@ function updateMediaForPage(pageNumber) {
         const videos = Array.isArray(config) ? config : [config];
         
         videos.forEach(videoConfig => {
-            if (videoConfig.type === 'streamable') {
-                // Create container for Streamable embed
-                const container = document.createElement('div');
-                container.style.position = 'fixed';
-                container.style.width = videoConfig.width || '29vmin';
-                if (videoConfig.height) {
-                    container.style.height = videoConfig.height;
-                } else if (videoConfig.maxHeight) {
-                    container.style.maxHeight = videoConfig.maxHeight;
-                    container.style.height = 'auto';
-                }
-                container.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
-                container.style.overflow = 'hidden';
-                container.style.borderRadius = '0';
-                container.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
-                
-                // Create iframe for Streamable embed
-                const iframe = document.createElement('iframe');
-                iframe.src = `https://streamable.com/e/${videoConfig.id}?controls=0&muted=1&autoplay=1&loop=1`;
-                iframe.width = '100%';
-                iframe.height = '100%';
-                iframe.frameBorder = '0';
-                iframe.allow = 'autoplay';
-                iframe.allowFullscreen = true;
-                iframe.style.border = 'none';
-                
-                container.appendChild(iframe);
-                mediaOverlay.appendChild(container);
-                
-            } else {
-                // Fallback for direct video files (optional)
-                const video = document.createElement('video');
-                video.muted = true;
-                video.loop = true;
-                video.src = videoConfig.src;
-                
-                video.style.position = 'fixed';
-                video.style.width = videoConfig.width || '29vmin';
-                if (videoConfig.height) {
-                    video.style.height = videoConfig.height;
-                } else if (videoConfig.maxHeight) {
-                    video.style.maxHeight = videoConfig.maxHeight;
-                    video.style.height = 'auto';
-                }
-                video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
-                video.style.objectFit = 'cover';
-                video.style.objectPosition = 'top 20%';
-                video.style.borderRadius = '0';
-                video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
-                
-                video.onerror = function() {
-                    console.error('Error loading video:', videoConfig.src);
-                    const errorDiv = document.createElement('div');
-                    errorDiv.textContent = 'Video not found';
-                    errorDiv.style.color = 'red';
-                    errorDiv.style.position = 'fixed';
-                    errorDiv.style.transform = video.style.transform;
-                    mediaOverlay.appendChild(errorDiv);
-                };
-                
-                mediaOverlay.appendChild(video);
-                video.play().catch(error => {
-                    console.error('Error playing video:', videoConfig.src, error);
-                });
+            const video = document.createElement('video');
+            video.muted = true;
+            video.loop = true;
+            video.src = videoConfig.src;
+            
+            // Position and size the video
+            video.style.position = 'fixed';
+            video.style.width = videoConfig.width || '29vmin';
+            if (videoConfig.height) {
+                video.style.height = videoConfig.height;
+            } else if (videoConfig.maxHeight) {
+                video.style.maxHeight = videoConfig.maxHeight;
+                video.style.height = 'auto';
             }
+            video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
+            video.style.objectFit = 'cover';
+            video.style.objectPosition = 'top 20%';
+            video.style.borderRadius = '0';
+            video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+            
+            // Add error handling
+            video.onerror = function() {
+                console.error('Error loading video:', videoConfig.src);
+                const errorDiv = document.createElement('div');
+                errorDiv.textContent = 'Video not found: ' + videoConfig.src;
+                errorDiv.style.color = 'red';
+                errorDiv.style.position = 'fixed';
+                errorDiv.style.transform = video.style.transform;
+                mediaOverlay.appendChild(errorDiv);
+            };
+            
+            mediaOverlay.appendChild(video);
+            video.play().catch(error => {
+                console.error('Error playing video:', videoConfig.src, error);
+            });
         });
         
         mediaOverlay.style.display = 'block';

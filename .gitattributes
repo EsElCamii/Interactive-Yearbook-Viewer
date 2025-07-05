@@ -7,10 +7,15 @@
 # Track all video files with Git LFS
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.mov filter=lfs diff=lfs merge=lfs -text
-Photos/*.png filter=lfs diff=lfs merge=lfs -text
-Photos/*.jpg filter=lfs diff=lfs merge=lfs -text
-Photos/*.jpeg filter=lfs diff=lfs merge=lfs -text
-Photos/*.gif filter=lfs diff=lfs merge=lfs -text
-Photos/*.svg filter=lfs diff=lfs merge=lfs -text
-Videos/fuego.mp4 filter=lfs diff=lfs merge=lfs -text
-Videos/ball.mp4 filter=lfs diff=lfs merge=lfs -text
+
+# Track all image files with Git LFS
+*.png filter=lfs diff=lfs merge=lfs -text
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
+*.gif filter=lfs diff=lfs merge=lfs -text
+*.svg filter=lfs diff=lfs merge=lfs -text
+
+# Track all files in these directories
+Videos/*.mp4 filter=lfs diff=lfs merge=lfs -text
+Videos/*.mov filter=lfs diff=lfs merge=lfs -text
+Photos/* filter=lfs diff=lfs merge=lfs -text

@@ -16,69 +16,82 @@ const videosConfig = {
     // Page 88 - Madres videos
     88: [
         { 
-            src: 'Videos/madres1.mp4',
+            src: '/videos/madres1.mp4',
             translateX: '15vmin',
-            translateY: '20vmin',
+            translateY: '10vmin',
             width: '30vmin',
             maxHeight: '40vmin',
-            zIndex: 100
+            zIndex: 1000,
+            playsInline: true,
+            muted: true,
+            loop: true
         },
         { 
-            src: 'Videos/madres2.mp4',
+            src: '/videos/madres2.mp4',
             translateX: '50vmin',
-            translateY: '20vmin',
+            translateY: '10vmin',
             width: '30vmin',
             maxHeight: '40vmin',
-            zIndex: 100
+            zIndex: 1000,
+            playsInline: true,
+            muted: true,
+            loop: true
         }
     ],
     // Page 38 - diaMuertos
     38: { 
-        src: 'Videos/diaMuertos.mp4',
+        src: '/videos/diaMuertos.mp4',
         translateX: '15.5vmin', 
-        translateY: '51vmin', 
+        translateY: '49vmin', 
         width: '26vmin' 
     },
     // Page 36 - yoga
     36: { 
-        src: 'Videos/yoga.mp4',
+        src: '/videos/yoga.mp4',
         translateX: '14vmin', 
-        translateY: '34vmin' 
+        translateY: '33vmin' 
     },
     // Page 43 - Multiple videos
     43: [
         { 
             src: 'Videos/ivan.mp4',
             translateX: '51vmin', 
-            translateY: '34.5vmin', 
+            translateY: '33vmin', 
             width: '26.5vmin', 
             maxHeight: '32vmin' 
         },
         { 
             src: 'Videos/flag.mp4',
             translateX: '16.5vmin', 
-            translateY: '34.5vmin', 
+            translateY: '33vmin', 
             width: '27vmin', 
             maxHeight: '15vmin' 
         },
         { 
             src: 'Videos/baile.mp4',
             translateX: '16vmin', 
-            translateY: '51.3vmin', 
+            translateY: '49.5vmin', 
             width: '30vmin', 
             maxHeight: '15vmin' 
         },
+        { 
+            src: 'Videos/fuego.mp4',
+            translateX: '50vmin',
+            translateY: '49.5vmin', 
+            width: '30vmin', 
+            maxHeight: '15vmin' 
+        }
     ],
     // Photo 90 is the back of paper 45, which is page 46
     46: [
-        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/baile.mp4', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: '/videos/agua_baile.mp4', translateX: '17vmin', translateY: '33vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: '/videos/mecanico.mp4', translateX: '50.2vmin', translateY: '49vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: '/videos/ball.mp4', translateX: '50.2vmin', translateY: '33vmin', width: '26.5vmin', maxHeight: '18vmin' }
     ],
     // Photo 91 is the back of paper 45, which is page 47
-    49: [
-        { src: 'Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
-    ],
+    49: [    
+        { src: '/videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
+    ]
     // Add more pages => {src, translateX, translateY} as needed
 };
 
@@ -144,12 +157,20 @@ let currentLocation = 1;
 let numOfPapers = 50;
 let maxLocation = numOfPapers + 1;
 
-// Function to preload an image
+// Function to preload an image with controlled loading
 function preloadImage(src) {
     return new Promise((resolve, reject) => {
         const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = () => resolve(null);
+        img.onload = () => {
+            // Add a small delay to simulate loading
+            setTimeout(() => {
+                resolve(img);
+            }, 500); // Adjust this delay as needed
+        };
+        img.onerror = () => {
+            console.error(`Failed to load image: ${src}`);
+            reject(new Error(`Failed to load image: ${src}`));
+        };
         img.src = src;
     });
 }
@@ -158,9 +179,21 @@ function preloadImage(src) {
 function getLQIPPath(originalPath) {
     const parts = originalPath.split('.');
     const ext = parts.pop();
-    return `${
-        parts.join('.')
-    }-lq.${ext}`;
+    return `${parts.join('.')}-lq.${ext}`;
+}
+
+// Loading state management
+let loadingImages = new Set();
+let failedImages = new Set();
+
+function updateLoadingState(imgContainer, isLoading) {
+    const loadingText = imgContainer.querySelector('.loading-state');
+    if (isLoading) {
+        loadingText.style.display = 'block';
+        loadingText.textContent = 'Cargando...';
+    } else {
+        loadingText.style.display = 'none';
+    }
 }
 
 // Function to create a page with image
@@ -181,23 +214,21 @@ function createPageWithImage(pageNumber, isFront) {
     const imgContainer = document.createElement('div');
     imgContainer.className = 'image-container';
 
-    // Create low-quality image placeholder
-    const lqip = new Image();
-    lqip.src = lqipPath;
-    lqip.className = 'lqip';
-    lqip.alt = `Loading page ${imgNumber}...`;
-    imgContainer.appendChild(lqip);
-
-    // Loading message overlay
-    const loadingText = document.createElement('div');
-    loadingText.className = 'loading-state';
-    loadingText.textContent = 'Cargando...';
-    imgContainer.appendChild(loadingText);
-
-    // Create full-quality image (will be loaded when needed)
+    // Create the image element
     const img = new Image();
     img.className = 'full-image';
     img.alt = `Page ${imgNumber}`;
+    img.src = imgPath;
+
+    // Add error handling
+    img.onerror = () => {
+        console.error(`Failed to load image: ${imgPath}`);
+        imgContainer.style.filter = 'grayscale(100%)';
+        imgContainer.title = 'Error loading image';
+    };
+    
+    // Add image to container
+    imgContainer.appendChild(img);
     img.loading = 'lazy';
 
     // Store image path as data attribute for lazy loading
@@ -284,9 +315,7 @@ async function createPapers() {
 // Center the animated circle
 function centerAnimatedCircleLeft() {
     const bookHeight = book.offsetHeight;
-    clickPrev.style.top = `${
-        bookHeight / 2
-    }px`;
+    clickPrev.style.top = `${bookHeight / 2}px`;
     clickPrev.style.left = '-82vmin';
     clickPrev.style.transform = 'translateY(-50%)';
 }
@@ -336,17 +365,24 @@ function updateMediaForPage(pageNumber) {
         
         videos.forEach(videoConfig => {
             const video = document.createElement('video');
-            video.muted = true;
-            video.loop = true;
+            video.playsInline = true;
+            video.muted = true;  // Required for autoplay in most browsers
+            video.preload = 'auto';
+            video.setAttribute('playsinline', '');  // For iOS
+            video.setAttribute('webkit-playsinline', '');  // For older iOS
+            video.setAttribute('x5-playsinline', '');  // For some mobile browsers
             video.playsInline = true;
             video.preload = 'auto';
             
-            // Use absolute paths for Vercel deployment
+            // Ensure consistent path format (lowercase 'videos')
             let videoSrc = videoConfig.src;
-            // If the path doesn't start with http, make it absolute
+            // Normalize the path to use lowercase 'videos'
+            videoSrc = videoSrc.replace(/Videos\//g, 'videos/');
+            // Ensure it starts with a forward slash
             if (!videoSrc.startsWith('http') && !videoSrc.startsWith('/')) {
                 videoSrc = '/' + videoSrc;
             }
+            console.log('Loading video from:', videoSrc);
             video.src = videoSrc;
             
             // Position and size the video
@@ -365,30 +401,24 @@ function updateMediaForPage(pageNumber) {
             video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
             video.style.zIndex = '1000'; // Ensure videos appear above other elements
             
-            // Add loading state
-            const loadingDiv = document.createElement('div');
-            loadingDiv.textContent = 'Loading video...';
-            loadingDiv.style.color = 'white';
-            loadingDiv.style.position = 'fixed';
-            loadingDiv.style.transform = video.style.transform;
-            loadingDiv.style.pointerEvents = 'none';
-            loadingDiv.style.zIndex = '1001';
-            
-            // Add error handling
+            // Simple error logging
             video.onerror = function() {
-                console.error('Error loading video:', videoSrc);
-                loadingDiv.textContent = 'Error loading video';
-                loadingDiv.style.color = 'red';
+                console.error('Error loading video:', videoSrc, 'Error:', this.error);
             };
             
             video.onloadeddata = function() {
-                loadingDiv.style.display = 'none';
                 video.play().catch(error => {
                     console.error('Error playing video:', videoSrc, error);
-                    loadingDiv.textContent = 'Error playing video';
-                    loadingDiv.style.color = 'orange';
                 });
             };
+            
+            // Add a small delay to check if video loads
+            setTimeout(() => {
+                if (video.readyState < 2) { // 0=HAVE_NOTHING, 1=HAVE_METADATA, 2=HAVE_CURRENT_DATA, 3=HAVE_FUTURE_DATA, 4=HAVE_ENOUGH_DATA
+                    console.warn('Video not loading, retrying:', videoSrc);
+                    video.load(); // Try to reload
+                }
+            }, 2000);
             
             // Create a container for the video and loading indicator
             const container = document.createElement('div');
@@ -407,19 +437,32 @@ function updateMediaForPage(pageNumber) {
 }
 
 // Preload images for pages adjacent to the current one
-function preloadAdjacentPages() {
-    const pagesToPreload = [currentLocation - 1, currentLocation + 1];
-    pagesToPreload.forEach(pageNum => {
-        if (pageNum < 1 || pageNum >= maxLocation) return;
-        const pageEl = document.querySelector(`#p${pageNum}`);
-        if (!pageEl) return;
-        pageEl.querySelectorAll('.full-image').forEach(img => {
-            if (img.dataset && img.dataset.src) {
-                img.src = img.dataset.src;
-                img.removeAttribute('data-src');
-            }
-        });
-    });
+async function preloadAdjacentPages() {
+    const preloadPages = 3; // Number of pages to preload on each side
+    const promises = [];
+    
+    for (let i = 1; i <= preloadPages; i++) {
+        // Preload next pages
+        if (currentLocation + i <= maxLocation) {
+            promises.push(
+                preloadImage(`Photos/${(currentLocation + i) * 2 - 1}.png`),
+                preloadImage(`Photos/${(currentLocation + i) * 2}.png`)
+            );
+        }
+        // Preload previous pages
+        if (currentLocation - i >= 1) {
+            promises.push(
+                preloadImage(`Photos/${(currentLocation - i) * 2 - 1}.png`),
+                preloadImage(`Photos/${(currentLocation - i) * 2}.png`)
+            );
+        }
+    }
+
+    try {
+        await Promise.all(promises);
+    } catch (error) {
+        console.error('Error preloading images:', error);
+    }
 }
 
 // Navigate to the next page

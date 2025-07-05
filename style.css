@@ -8,9 +8,6 @@ html, body {
 
 /* Media Overlay for dynamic videos */
 .media-overlay {
-    /* Developer positioning via CSS vars */
-    --translate-x: 0px;
-    --translate-y: 0px;
     /* Hidden by default; JS shows/hides overlay */
     display: none;
     /* Ensure overlay sits above all content */
@@ -18,8 +15,15 @@ html, body {
     position: fixed;
     top: 0;
     left: 0;
-    transform: translate(var(--translate-x), var(--translate-y));
+    width: 100%;
+    height: 100%;
     pointer-events: none;
+    overflow: hidden;
+}
+
+.media-overlay > div {
+    position: absolute;
+    display: inline-block;
 }
 
 .media-overlay video {
@@ -31,6 +35,7 @@ html, body {
     object-position: top 20%;
     border-radius: 0;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
 /* Loading Overlay */

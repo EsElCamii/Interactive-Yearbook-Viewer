@@ -15,35 +15,35 @@ const dynamicVideo = document.getElementById('dynamic-video');
 const videosConfig = {
     // Page 38 - diaMuertos
     38: { 
-        src: 'Videos/diaMuertos.mp4',
+        src: '/Videos/diaMuertos.mp4',
         translateX: '15.5vmin', 
         translateY: '51vmin', 
         width: '26vmin' 
     },
     // Page 36 - yoga
     36: { 
-        src: 'Videos/yoga.mp4',
+        src: '/Videos/yoga.mp4',
         translateX: '14vmin', 
         translateY: '34vmin' 
     },
     // Page 43 - Multiple videos
     43: [
         { 
-            src: 'Videos/ivan.mp4',
+            src: '/Videos/ivan.mp4',
             translateX: '51vmin', 
             translateY: '34.5vmin', 
             width: '26.5vmin', 
             maxHeight: '32vmin' 
         },
         { 
-            src: 'Videos/flag.mp4',
+            src: '/Videos/flag.mp4',
             translateX: '16.5vmin', 
             translateY: '34.5vmin', 
             width: '27vmin', 
             maxHeight: '15vmin' 
         },
         { 
-            src: 'Videos/baile.mp4',
+            src: '/Videos/baile.mp4',
             translateX: '16vmin', 
             translateY: '51.3vmin', 
             width: '30vmin', 
@@ -52,13 +52,13 @@ const videosConfig = {
     ],
     // Photo 90 is the back of paper 45, which is page 46
     46: [
-        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/baile.mp4', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: '/Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: '/Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: '/Videos/baile.mp4', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
     ],
     // Photo 91 is the back of paper 45, which is page 47
     49: [
-        { src: 'Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
+        { src: '/Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
     ],
     // Add more pages => {src, translateX, translateY} as needed
 };

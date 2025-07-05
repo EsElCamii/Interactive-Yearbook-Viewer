@@ -4,16 +4,20 @@
     {
       "src": "*.{html,js,css,json}",
       "use": "@vercel/static"
-    },
-    {
-      "src": "Videos/*",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/Videos/(.*)", "headers": { "Content-Type": "video/mp4" }, "dest": "/Videos/$1" },
-    { "handle": "filesystem" },
-    { "src": "/.*", "dest": "/index.html" }
+    {
+      "src": "/Videos/(.*\\.mp4)",
+      "headers": {
+        "Content-Type": "video/mp4",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ],
   "buildCommand": "git lfs pull",
   "installCommand": "git lfs install && git lfs pull"

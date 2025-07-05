@@ -50,12 +50,25 @@
 
         <!-- Navigation Buttons -->
         <div id="navigation-buttons">
-            <button class="skip-button" onclick="goToPage(5)">Page 5</button>
-            <button class="skip-button" onclick="goToPage(10)">Page 10</button>
-            <button class="skip-button" onclick="goToPage(19)">Page 19</button>
-            <button class="skip-button" onclick="goToPage(30)">Page 30</button>
-            <button class="skip-button" onclick="goToPage(32)">Page 32</button>
-            <button class="skip-button" onclick="goToPage(37)">Page 37</button>
+            <div class="button-row">
+                <button class="skip-button" onclick="goToPage(2)">Start</button>
+                <button class="skip-button" onclick="goToPage(4)">Staff</button>
+                <button class="skip-button" onclick="goToPage(9)">Kinder</button>
+                <button class="skip-button" onclick="goToPage(19)">PYP</button>
+            </div>
+            <div class="button-row">
+                <button class="skip-button" onclick="goToPage(39)">MYP</button>
+                <button class="skip-button" onclick="goToPage(61)">DP</button>
+                <button class="skip-button" onclick="goToPage(69)">Events</button>
+                <button class="skip-button" onclick="goToLastPage()">End</button>
+            </div>
         </div>
+        <script>
+            // Function to go to the last page + 1 to close the book
+            window.goToLastPage = function() {
+                const lastPage = document.querySelectorAll('.paper').length * 2; // Each paper has 2 pages
+                goToPage(lastPage + 1); // Add 1 to close the book
+            };
+        </script>
     </body>
 </html>

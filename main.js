@@ -13,6 +13,25 @@ const dynamicVideo = document.getElementById('dynamic-video');
 // translateX and translateY are in pixels and control positioning
 
 const videosConfig = {
+    // Page 88 - Madres videos
+    88: [
+        { 
+            src: 'Videos/madres1.mp4',
+            translateX: '15vmin',
+            translateY: '20vmin',
+            width: '30vmin',
+            maxHeight: '40vmin',
+            zIndex: 100
+        },
+        { 
+            src: 'Videos/madres2.mp4',
+            translateX: '50vmin',
+            translateY: '20vmin',
+            width: '30vmin',
+            maxHeight: '40vmin',
+            zIndex: 100
+        }
+    ],
     // Page 38 - diaMuertos
     38: { 
         src: 'Videos/diaMuertos.mp4',
@@ -479,29 +498,17 @@ function initEventListeners() {
 }
 
 // Make goToPage function globally accessible
-window.goToPage = function(pageNumber) {
-    if (pageNumber < 1) pageNumber = 1;
-    if (pageNumber > maxLocation - 1) pageNumber = maxLocation - 1;
+window.goToPage = function(photoNumber) {
+    // Convert photo number to page number (each page has 2 photos)
+    const targetPage = Math.ceil(photoNumber / 2);
     
-    // Calculate how many pages to move
-    const pagesToMove = pageNumber - currentLocation;
+    // Ensure page number is within bounds
+    const boundedPage = Math.max(1, Math.min(targetPage, maxLocation - 1));
     
-    if (pagesToMove > 0) {
-        // Go forward
-        for (let i = 0; i < pagesToMove; i++) {
-            if (currentLocation < maxLocation - 1) {
-                goNextPage();
-            }
-        }
-    } else if (pagesToMove < 0) {
-        // Go backward
-        for (let i = 0; i < -pagesToMove; i++) {
-            if (currentLocation > 1) {
-                goPrevPage();
-            }
-        }
-    }
+    // Navigate to the target page
+    while (currentLocation > boundedPage) goPrevPage();
+    while (currentLocation < boundedPage) goNextPage();
     
-    updateMediaForPage(pageNumber);
-    console.log(`Navigated to page ${pageNumber}`);
+    updateMediaForPage(boundedPage);
+    console.log(`Navigated to photo ${photoNumber} (page ${boundedPage})`);
 }

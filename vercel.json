@@ -4,10 +4,14 @@
     {
       "src": "*.{html,js,css,json}",
       "use": "@vercel/static"
+    },
+    {
+      "src": "Videos/*",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
-    { "src": "/Videos/.*", "dest": "/Videos/", "headers": { "Content-Type": "video/mp4" } },
+    { "src": "/Videos/(.*)", "headers": { "Content-Type": "video/mp4" }, "dest": "/Videos/$1" },
     { "handle": "filesystem" },
     { "src": "/.*", "dest": "/index.html" }
   ],

@@ -13,22 +13,52 @@ const dynamicVideo = document.getElementById('dynamic-video');
 // translateX and translateY are in pixels and control positioning
 
 const videosConfig = {
-    38: { src: 'Videos/diaMuertos.mp4', translateX: '15.5vmin', translateY: '51vmin', width: '26vmin' },
-    36: { src: 'Videos/yoga.MOV', translateX: '14vmin', translateY: '34vmin' },
+    // Page 38 - diaMuertos
+    38: { 
+        src: '/Videos/diaMuertos.mp4',
+        translateX: '15.5vmin', 
+        translateY: '51vmin', 
+        width: '26vmin' 
+    },
+    // Page 36 - yoga
+    36: { 
+        src: '/Videos/yoga.mp4',
+        translateX: '14vmin', 
+        translateY: '34vmin' 
+    },
+    // Page 43 - Multiple videos
     43: [
-        { src: 'Videos/ivan.MOV', translateX: '51vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '32vmin' },
-        { src: 'Videos/flag.mp4', translateX: '16.5vmin', translateY: '34.5vmin', width: '27vmin', maxHeight: '15vmin' },
-        { src: 'Videos/baile.mp4', translateX: '16vmin', translateY: '51.3vmin', width: '30vmin', maxHeight: '15vmin' },
+        { 
+            src: '/Videos/ivan.mp4',
+            translateX: '51vmin', 
+            translateY: '34.5vmin', 
+            width: '26.5vmin', 
+            maxHeight: '32vmin' 
+        },
+        { 
+            src: '/Videos/flag.mp4',
+            translateX: '16.5vmin', 
+            translateY: '34.5vmin', 
+            width: '27vmin', 
+            maxHeight: '15vmin' 
+        },
+        { 
+            src: '/Videos/baile.mp4',
+            translateX: '16vmin', 
+            translateY: '51.3vmin', 
+            width: '30vmin', 
+            maxHeight: '15vmin' 
+        },
     ],
     // Photo 90 is the back of paper 45, which is page 46
     46: [
         { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
         { src: 'Videos/mecanico.mp4', translateX: '50vmin', translateY: '50.5vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/ball.MOV', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: 'Videos/baile.mp4', translateX: '99vmin', translateY: '51.1vmin', width: '26.5vmin', maxHeight: '18vmin' },
     ],
     // Photo 91 is the back of paper 45, which is page 47
     49: [
-        { src: 'Videos/music.mp4', translateX: '50.2vmin', translateY: '34.7vmin', width: '32.5vmin', height: '35.4vmin' }
+        { src: 'Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
     ],
     // Add more pages => {src, translateX, translateY} as needed
 };
@@ -289,7 +319,16 @@ function updateMediaForPage(pageNumber) {
             const video = document.createElement('video');
             video.muted = true;
             video.loop = true;
-            video.src = videoConfig.src;
+            video.playsInline = true;
+            video.preload = 'auto';
+            
+            // Use absolute paths for Vercel deployment
+            let videoSrc = videoConfig.src;
+            // If the path doesn't start with http, make it absolute
+            if (!videoSrc.startsWith('http') && !videoSrc.startsWith('/')) {
+                videoSrc = '/' + videoSrc;
+            }
+            video.src = videoSrc;
             
             // Position and size the video
             video.style.position = 'fixed';
@@ -305,22 +344,41 @@ function updateMediaForPage(pageNumber) {
             video.style.objectPosition = 'top 20%';
             video.style.borderRadius = '0';
             video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+            video.style.zIndex = '1000'; // Ensure videos appear above other elements
+            
+            // Add loading state
+            const loadingDiv = document.createElement('div');
+            loadingDiv.textContent = 'Loading video...';
+            loadingDiv.style.color = 'white';
+            loadingDiv.style.position = 'fixed';
+            loadingDiv.style.transform = video.style.transform;
+            loadingDiv.style.pointerEvents = 'none';
+            loadingDiv.style.zIndex = '1001';
             
             // Add error handling
             video.onerror = function() {
-                console.error('Error loading video:', videoConfig.src);
-                const errorDiv = document.createElement('div');
-                errorDiv.textContent = 'Video not found: ' + videoConfig.src;
-                errorDiv.style.color = 'red';
-                errorDiv.style.position = 'fixed';
-                errorDiv.style.transform = video.style.transform;
-                mediaOverlay.appendChild(errorDiv);
+                console.error('Error loading video:', videoSrc);
+                loadingDiv.textContent = 'Error loading video';
+                loadingDiv.style.color = 'red';
             };
             
-            mediaOverlay.appendChild(video);
-            video.play().catch(error => {
-                console.error('Error playing video:', videoConfig.src, error);
-            });
+            video.onloadeddata = function() {
+                loadingDiv.style.display = 'none';
+                video.play().catch(error => {
+                    console.error('Error playing video:', videoSrc, error);
+                    loadingDiv.textContent = 'Error playing video';
+                    loadingDiv.style.color = 'orange';
+                });
+            };
+            
+            // Create a container for the video and loading indicator
+            const container = document.createElement('div');
+            container.style.position = 'relative';
+            container.style.display = 'inline-block';
+            container.appendChild(video);
+            container.appendChild(loadingDiv);
+            
+            mediaOverlay.appendChild(container);
         });
         
         mediaOverlay.style.display = 'block';

@@ -15,35 +15,35 @@ const dynamicVideo = document.getElementById('dynamic-video');
 const videosConfig = {
     // Page 38 - diaMuertos
     38: { 
-        src: '/Videos/diaMuertos.mp4',
+        src: 'Videos/diaMuertos.mp4',
         translateX: '15.5vmin', 
         translateY: '51vmin', 
         width: '26vmin' 
     },
     // Page 36 - yoga
     36: { 
-        src: '/Videos/yoga.mp4',
+        src: 'Videos/yoga.mp4',
         translateX: '14vmin', 
         translateY: '34vmin' 
     },
     // Page 43 - Multiple videos
     43: [
         { 
-            src: '/Videos/ivan.mp4',
+            src: 'Videos/ivan.mp4',
             translateX: '51vmin', 
             translateY: '34.5vmin', 
             width: '26.5vmin', 
             maxHeight: '32vmin' 
         },
         { 
-            src: '/Videos/flag.mp4',
+            src: 'Videos/flag.mp4',
             translateX: '16.5vmin', 
             translateY: '34.5vmin', 
             width: '27vmin', 
             maxHeight: '15vmin' 
         },
         { 
-            src: '/Videos/baile.mp4',
+            src: 'Videos/baile.mp4',
             translateX: '16vmin', 
             translateY: '51.3vmin', 
             width: '30vmin', 

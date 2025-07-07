@@ -21,6 +21,34 @@ html, body {
     display: none;
 }
 
+/* Mobile-specific styles */
+@media (max-width: 768px) {
+    #overlay-container {
+        scale: 0.4;
+        display: block;
+        position: fixed;
+        top: 0px;
+        left: 0px;
+        width: 70%;
+        height: 70%;
+        pointer-events: none;
+        z-index: 10000;
+        overflow: visible;
+        transform: translate(-27.5vmin, 31vmin) !important;
+    }
+    
+    .media-overlay video {
+        position: fixed !important;
+        width: 29vmin !important;
+        transform: translate(44.9vmin, 41vmin) scale(0.83) !important;
+        object-fit: cover;
+        border-radius: 0px;
+        box-shadow: rgba(0, 0, 0, 0.5) 0px 0px 20px;
+        z-index: 1000;
+        display: block !important;
+    }
+}
+
 /* Overlay Container - Hidden by default */
 #overlay-container {
   display: none;

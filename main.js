@@ -44,19 +44,49 @@ function updateOverlay(paperIndex) {
   // Set the correct image
   cont.style.backgroundImage = `url('${cfg.url}')`;
 
-  // Apply *all* of your required CSS inline:
-  Object.assign(cont.style, {
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '50%',
-    height: '50%',
-    pointerEvents: 'none',
-    zIndex: '10000',
-    overflow: 'visible',
-    transform: 'translate(8.5vmin, 31vmin)',
-    display: 'block'
-  });
+  // Force mobile styles for testing - TODO: Replace with actual mobile detection
+  const isMobile = true; // Temporarily forcing mobile styles
+  
+  // Reset all styles
+  cont.style.cssText = '';
+  
+  if (isMobile) {
+    // Mobile styles
+    const mobileStyles = {
+      backgroundImage: `url('${cfg.url}')`,
+      position: 'fixed',
+      width: '50%',
+      height: '50%',
+      transform: 'translate(-62.3vmin, 0vmin)',
+      pointerEvents: 'none',
+      zIndex: '10000',
+      overflow: 'visible',
+      display: 'block',
+      backgroundSize: 'contain',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center center'
+    };
+    
+    // Apply scale separately as it needs to be set after transform in some browsers
+    Object.assign(cont.style, mobileStyles);
+    cont.style.scale = '0.66';
+  } else {
+    // Desktop styles
+    Object.assign(cont.style, {
+      position: 'fixed',
+      width: '50%',
+      height: '50%',
+      transform: 'translate(-47vmin, 0)',
+      pointerEvents: 'none',
+      zIndex: '10000',
+      overflow: 'visible',
+      display: 'block',
+      scale: '0.87',
+      backgroundSize: 'contain',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center'
+    });
+  }
 
   // Overlay updated for page
 }
@@ -519,22 +549,62 @@ function updateMediaForPage(pageNumber) {
             video.src = videoConfig.src;
             // Loading video
             
-            // Position and size the video
-            video.style.position = 'fixed';
-            video.style.width = videoConfig.width || '29vmin';
-            if (videoConfig.height) {
-                video.style.height = videoConfig.height;
-            } else if (videoConfig.maxHeight) {
-                video.style.maxHeight = videoConfig.maxHeight;
-                video.style.height = 'auto';
+            // Enhanced mobile detection
+            const isMobile = (function() {
+                // Check user agent for mobile devices
+                const userAgent = navigator.userAgent.toLowerCase();
+                const isIOS = /iphone|ipad|ipod/.test(userAgent);
+                const isAndroid = /android/.test(userAgent);
+                
+                // Check viewport width and device pixel ratio for tablets
+                const isTablet = window.innerWidth <= 1024 && window.devicePixelRatio >= 1;
+                
+                // Consider it mobile if it's iOS, Android, or a tablet
+                return isIOS || isAndroid || isTablet || window.innerWidth <= 768;
+            })();
+            
+            // Save the source before resetting styles
+            const videoSrc = video.src;
+            
+            // Reset styles while preserving source
+            video.style.cssText = '';
+            video.src = videoSrc;
+            
+            if (isMobile) {
+                // Mobile styles object with exact specifications
+                const mobileVideoStyles = {
+                    position: 'fixed',
+                    width: '29vmin',
+                    transform: 'translate(44vmin, 39vmin)',
+                    objectFit: 'cover',
+                    borderRadius: '0px',
+                    boxShadow: 'rgba(0, 0, 0, 0.5) 0px 0px 20px',
+                    zIndex: '1000',
+                    display: 'block'
+                };
+                
+                // Apply styles
+                Object.assign(video.style, mobileVideoStyles);
+                
+                // Apply scale separately for better browser compatibility
+                video.style.scale = '0.845';
+            } else {
+                // Desktop styles
+                video.style.width = videoConfig.width || '29vmin';
+                if (videoConfig.height) {
+                    video.style.height = videoConfig.height;
+                } else if (videoConfig.maxHeight) {
+                    video.style.maxHeight = videoConfig.maxHeight;
+                    video.style.height = 'auto';
+                }
+                video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
+                video.style.objectFit = 'cover';
+                video.style.objectPosition = 'top 20%';
+                video.style.borderRadius = '0';
+                video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
+                video.style.zIndex = videoConfig.zIndex || '1000';
+                video.style.display = 'block';
             }
-            video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
-            video.style.objectFit = 'cover';
-            video.style.objectPosition = 'top 20%';
-            video.style.borderRadius = '0';
-            video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
-            video.style.zIndex = videoConfig.zIndex || '1000';
-            video.style.display = 'block';
             
             // Error handling
             video.onerror = function() {

@@ -334,21 +334,17 @@ function createPageWithImage(pageNumber, isFront) {
     const imgContainer = document.createElement('div');
     imgContainer.className = 'image-container';
 
+    // Show a small "Loading..." text in the grey box
+    const loadingState = document.createElement('div');
+    loadingState.className = 'loading-state';
+    loadingState.textContent = 'Loading…';
+    imgContainer.appendChild(loadingState);
+    updateLoadingState(imgContainer, true);
+
     // Create the image element
     const img = new Image();
     img.className = 'full-image';
     img.alt = `Page ${imgNumber}`;
-    img.src = imgPath;
-
-    // Add error handling
-    img.onerror = () => {
-        console.error(`Failed to load image: ${imgPath}`);
-        imgContainer.style.filter = 'grayscale(100%)';
-        imgContainer.title = 'Error loading image';
-    };
-    
-    // Add image to container
-    imgContainer.appendChild(img);
     img.loading = 'lazy';
 
     // Store image path as data attribute for lazy loading
@@ -359,6 +355,22 @@ function createPageWithImage(pageNumber, isFront) {
     
     // Update the overlay for this page if needed
     updateOverlay(pageNumber);
+
+    // Image load and error handlers
+    img.onload = () => {
+        imgContainer.classList.add('loaded');
+        imgContainer.classList.remove('loading');
+        updateLoadingState(imgContainer, false);
+    };
+
+    img.onerror = () => {
+        updateLoadingState(imgContainer, false);
+        const placeholder = document.createElement('div');
+        placeholder.className = 'placeholder';
+        placeholder.textContent = isFront ? `Front ${pageNumber}` : `Back ${pageNumber}`;
+        imgContainer.innerHTML = '';
+        imgContainer.appendChild(placeholder);
+    };
 
     // Create intersection observer for lazy loading
     const observer = new IntersectionObserver((entries) => {
@@ -431,8 +443,10 @@ async function createPapers() {
         await new Promise(resolve => setTimeout(resolve, 50));
     }
 
-    // Hide loading overlay when done
-    loadingOverlay.classList.add('hidden');
+    // Hide loading overlay after a short delay to ensure all pages are rendered
+    setTimeout(() => {
+        loadingOverlay.classList.add('hidden');
+    }, 200);
 }
 
 // Center the animated circle

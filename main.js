@@ -58,7 +58,7 @@ function updateOverlay(paperIndex) {
     display: 'block'
   });
 
-  console.log(`[updateOverlay] Showing overlay for page ${cfg.page} on paper ${idx}`);
+  // Overlay updated for page
 }
 
 // Initialize everything in the correct order
@@ -74,7 +74,7 @@ async function init() {
   await new Promise(resolve => {
     const checkInitialized = () => {
       if (typeof currentLocation !== 'undefined' && document.readyState === 'complete') {
-        console.log('Book initialized, current location:', currentLocation);
+        // Book initialized
         resolve();
       } else {
         setTimeout(checkInitialized, 100);
@@ -85,7 +85,7 @@ async function init() {
   
   // Initial overlay update after book loads
   if (typeof currentLocation !== 'undefined') {
-    console.log('Initial overlay call for page:', currentLocation);
+    // Initial overlay call
     // Use the same timing as page flip for consistency
     const paperIndex = Math.ceil(currentLocation / 2);
     const paperEl = document.getElementById(`p${paperIndex}`);
@@ -135,7 +135,7 @@ if (document.readyState === 'loading') {
 }
 // Also reinitialize on window load to catch any late-loading resources
 window.addEventListener('load', () => {
-    console.log('Window loaded, checking overlays...');
+    // Window loaded
     if (typeof currentLocation !== 'undefined') {
         updateOverlay(currentLocation);
     }
@@ -503,7 +503,7 @@ function updateMediaForPage(pageNumber) {
             
             // Set video source - using absolute path
             video.src = videoConfig.src;
-            console.log('Loading video from:', video.src);
+            // Loading video
             
             // Position and size the video
             video.style.position = 'fixed';
@@ -581,7 +581,7 @@ function cleanupOverlays() {
     document.querySelectorAll('.page-overlay').forEach(overlay => {
         overlay.remove();
     });
-    console.log('Cleaned up all overlays');
+    // Cleaned up overlays
 }
 
 // Navigate to the next page
@@ -613,7 +613,7 @@ function goNextPage() {
             // Preload adjacent pages
             preloadAdjacentPages();
             
-            console.log(`Navigated to page ${currentLocation}`);
+            // Navigated to page
         }
     }
 }
@@ -654,7 +654,7 @@ function goPrevPage() {
         // Preload adjacent pages
         preloadAdjacentPages();
         
-        console.log(`Navigated back to page ${currentLocation}`);
+        // Navigated back
     }
 }
 
@@ -693,5 +693,5 @@ window.goToPage = function(photoNumber) {
     while (currentLocation < boundedPage) goNextPage();
     
     updateMediaForPage(boundedPage);
-    console.log(`Navigated to photo ${photoNumber} (page ${boundedPage})`);
+    // Navigated to photo
 }

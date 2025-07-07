@@ -38,8 +38,6 @@ html, body {
     background-position: center;
     display: none; /* Hidden by default */
     z-index: 10001;
-    border: 2px solid #00ff00; /* Green border for visibility */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     pointer-events: none; /* Allow clicks to pass through */
 }
 
@@ -69,26 +67,11 @@ html, body {
     animation: pulse 2s infinite;
 }
 
-/* Debug animation to make overlays more visible */
+/* Animation for overlays */
 @keyframes pulse {
-    0% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0.7); }
-    70% { box-shadow: 0 0 0 10px rgba(0, 255, 0, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(0, 255, 0, 0); }
-}
-
-/* Debug info */
-#overlay-container::before {
-    content: 'Overlay Container';
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    background: rgba(0, 0, 0, 0.7);
-    color: white;
-    padding: 5px 10px;
-    border-radius: 4px;
-    font-size: 12px;
-    z-index: 10002;
-    pointer-events: none;
+    0% { opacity: 0.9; }
+    50% { opacity: 1; }
+    100% { opacity: 0.9; }
 }
 
 .overlay-container[data-page='90'] {
@@ -151,9 +134,7 @@ html, body {
     transform: translateZ(0);
     will-change: transform;
     
-    /* Debug styles - visible by default */
-    background-color: rgba(0, 255, 0, 0.2);
-    border: 2px solid red;
+    background-color: transparent;
     
     /* Ensure it's always on top */
     backface-visibility: hidden;

@@ -5,7 +5,7 @@ html, body {
     padding: 0;
     overflow: hidden;
     position: relative;
-    background-color: #e6f3ff !important; /* Light blue background to test CSS loading */
+    background-color: rgba(245, 245, 250, 0.98);
 }
 
 /* Photo Overlays */

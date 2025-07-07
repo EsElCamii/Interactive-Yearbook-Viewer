@@ -1,8 +1,146 @@
 // DOM Elements
+// Global variables
 const book = document.querySelector("#book");
 const clickHere = document.querySelector("#animated-circle");
 const clickPrev = document.querySelector("#animated-circle-left");
 const introScreen = document.getElementById('intro-screen');
+
+// Overlay configuration - maps page numbers to their overlay image URLs
+
+// ───────────────
+// If your overlay shows
+//   • 1 paper too early, set to +1
+//   • 1 paper too late,  set to -1
+//   • perfectly aligned, set to  0
+// ───────────────
+const PAPER_INDEX_OFFSET = -1;
+
+const OVERLAY_CONFIG = [
+  { page: 70, url: 'https://i.ibb.co/cK6dSYLQ/100.png' },
+  { page: 74, url: 'https://i.ibb.co/7NY8ZwKf/101.png' },
+  { page: 84, url: 'https://i.ibb.co/g1Fffpb/84.png' },
+  { page: 88, url: 'https://i.ibb.co/XZQwskLy/88.png' },
+  { page: 90, url: 'https://i.ibb.co/Cp5ShJ7v/102.png' },
+  { page: 96, url: 'https://i.ibb.co/m5370p26/103.png' }
+];
+
+// Update overlay based on paper index (1-based)
+function updateOverlay(paperIndex) {
+  // apply our tweakable offset here:
+  const idx = parseInt(paperIndex, 10) + PAPER_INDEX_OFFSET;
+  const frontPage = idx * 2 - 1;
+  const backPage = idx * 2;
+
+  // Find if either of those real book-pages is in your config
+  const cfg = OVERLAY_CONFIG.find(c => c.page === frontPage || c.page === backPage);
+  const cont = document.getElementById('overlay-container');
+  if (!cont) return;
+
+  if (!cfg) {
+    cont.style.display = 'none';
+    return;
+  }
+
+  // Set the correct image
+  cont.style.backgroundImage = `url('${cfg.url}')`;
+
+  // Apply *all* of your required CSS inline:
+  Object.assign(cont.style, {
+    position: 'fixed',
+    top: '0',
+    left: '0',
+    width: '50%',
+    height: '50%',
+    pointerEvents: 'none',
+    zIndex: '10000',
+    overflow: 'visible',
+    transform: 'translate(8.5vmin, 31vmin)',
+    display: 'block'
+  });
+
+  console.log(`[updateOverlay] Showing overlay for page ${cfg.page} on paper ${idx}`);
+}
+
+// Initialize everything in the correct order
+async function init() {
+  // Create overlay container if it doesn't exist
+  if (!document.getElementById('overlay-container')) {
+    const container = document.createElement('div');
+    container.id = 'overlay-container';
+    document.body.appendChild(container);
+  }
+  
+  // Wait for the book to be fully initialized
+  await new Promise(resolve => {
+    const checkInitialized = () => {
+      if (typeof currentLocation !== 'undefined' && document.readyState === 'complete') {
+        console.log('Book initialized, current location:', currentLocation);
+        resolve();
+      } else {
+        setTimeout(checkInitialized, 100);
+      }
+    };
+    checkInitialized();
+  });
+  
+  // Initial overlay update after book loads
+  if (typeof currentLocation !== 'undefined') {
+    console.log('Initial overlay call for page:', currentLocation);
+    // Use the same timing as page flip for consistency
+    const paperIndex = Math.ceil(currentLocation / 2);
+    const paperEl = document.getElementById(`p${paperIndex}`);
+    
+    if (paperEl) {
+      paperEl.addEventListener('transitionend', () => {
+        updateOverlay(currentLocation);
+      }, { once: true });
+    } else {
+      // Fallback if paper element not found
+      console.warn('Initial paper element not found, using timeout fallback');
+      setTimeout(() => updateOverlay(currentLocation), 800);
+    }
+  }
+}
+
+// Wrap goToPage to update overlay after page flip animation completes
+const originalGoToPage = window.goToPage;
+window.goToPage = function(pageNum) {
+  const result = originalGoToPage.apply(this, arguments);
+
+  // Compute which paper we're turning to
+  const paperIndex = Math.ceil(pageNum / 2);
+  const paperEl = document.getElementById(`p${paperIndex}`);
+  
+  if (paperEl) {
+    // Wait for the flip animation to complete
+    const handleTransitionEnd = () => {
+      paperEl.removeEventListener('transitionend', handleTransitionEnd);
+      updateOverlay(pageNum);
+    };
+    paperEl.addEventListener('transitionend', handleTransitionEnd, { once: true });
+  } else {
+    // Fallback if paper element not found
+    console.warn(`Paper element p${paperIndex} not found, using timeout fallback`);
+    setTimeout(() => updateOverlay(pageNum), 800);
+  }
+
+  return result;
+};
+
+// Start initialization when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+// Also reinitialize on window load to catch any late-loading resources
+window.addEventListener('load', () => {
+    console.log('Window loaded, checking overlays...');
+    if (typeof currentLocation !== 'undefined') {
+        updateOverlay(currentLocation);
+    }
+});
+
 const introContent = document.getElementById('intro-content');
 
 // Media overlay elements for dynamic videos
@@ -13,84 +151,66 @@ const dynamicVideo = document.getElementById('dynamic-video');
 // translateX and translateY are in pixels and control positioning
 
 const videosConfig = {
-    // Page 88 - Madres videos
-    88: [
-        { 
-            src: '/videos/madres1.mp4',
-            translateX: '15vmin',
-            translateY: '10vmin',
-            width: '30vmin',
-            maxHeight: '40vmin',
-            zIndex: 1000,
-            playsInline: true,
-            muted: true,
-            loop: true
-        },
-        { 
-            src: '/videos/madres2.mp4',
-            translateX: '50vmin',
-            translateY: '10vmin',
-            width: '30vmin',
-            maxHeight: '40vmin',
-            zIndex: 1000,
-            playsInline: true,
-            muted: true,
-            loop: true
-        }
-    ],
     // Page 38 - diaMuertos
     38: { 
-        src: '/videos/diaMuertos.mp4',
+        src: '/Videos/diaMuertos.mp4',
         translateX: '15.5vmin', 
-        translateY: '49vmin', 
-        width: '26vmin' 
+        translateY: '51vmin', 
+        width: '26vmin',
+        playsInline: true,
+        muted: true,
+        loop: true
     },
     // Page 36 - yoga
     36: { 
-        src: '/videos/yoga.mp4',
+        src: 'Videos/yoga.mp4',
         translateX: '14vmin', 
-        translateY: '33vmin' 
+        translateY: '33vmin',
+        playsInline: true,
+        muted: true,
+        loop: true
     },
     // Page 43 - Multiple videos
     43: [
         { 
-            src: 'Videos/ivan.mp4',
-            translateX: '51vmin', 
-            translateY: '33vmin', 
-            width: '26.5vmin', 
-            maxHeight: '32vmin' 
-        },
-        { 
-            src: 'Videos/flag.mp4',
-            translateX: '16.5vmin', 
-            translateY: '33vmin', 
-            width: '27vmin', 
-            maxHeight: '15vmin' 
-        },
-        { 
-            src: 'Videos/baile.mp4',
+            src: '/Videos/baile.mp4',
             translateX: '16vmin', 
-            translateY: '49.5vmin', 
+            translateY: '51vmin', 
             width: '30vmin', 
-            maxHeight: '15vmin' 
+            maxHeight: '15vmin',
+            playsInline: true,
+            muted: true,
+            loop: true
         },
         { 
-            src: 'Videos/fuego.mp4',
-            translateX: '50vmin',
-            translateY: '49.5vmin', 
-            width: '30vmin', 
-            maxHeight: '15vmin' 
+            src: '/Videos/flag.mp4',
+            translateX: '16.5vmin', 
+            translateY: '34vmin', 
+            width: '27vmin', 
+            maxHeight: '15vmin',
+            playsInline: true,
+            muted: true,
+            loop: true
+        },
+        { 
+            src: '/Videos/ivan.mp4',
+            translateX: '51vmin', 
+            translateY: '34.8vmin', 
+            width: '26.5vmin', 
+            maxHeight: '31vmin',
+            playsInline: true,
+            muted: true,
+            loop: true
         }
     ],
     // Photo 90 is the back of paper 45, which is page 46
     46: [
-        { src: '/videos/agua_baile.mp4', translateX: '17vmin', translateY: '33vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: '/videos/mecanico.mp4', translateX: '50.2vmin', translateY: '49vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: '/videos/ball.mp4', translateX: '50.2vmin', translateY: '33vmin', width: '26.5vmin', maxHeight: '18vmin' }
+        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34vmin', width: '26.5vmin', maxHeight: '18vmin' },
+        { src: 'Videos/mecanico.mp4', translateX: '50.2vmin', translateY: '51vmin', width: '26.5vmin', maxHeight: '18vmin' }
     ],
     // Photo 91 is the back of paper 45, which is page 47
     49: [    
-        { src: '/videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
+        { src: 'Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
     ]
     // Add more pages => {src, translateX, translateY} as needed
 };
@@ -236,6 +356,9 @@ function createPageWithImage(pageNumber, isFront) {
 
     // Add loading class
     imgContainer.classList.add('loading');
+    
+    // Update the overlay for this page if needed
+    updateOverlay(pageNumber);
 
     // Create intersection observer for lazy loading
     const observer = new IntersectionObserver((entries) => {
@@ -364,26 +487,23 @@ function updateMediaForPage(pageNumber) {
         const videos = Array.isArray(config) ? config : [config];
         
         videos.forEach(videoConfig => {
+            // Create video element
             const video = document.createElement('video');
-            video.playsInline = true;
-            video.muted = true;  // Required for autoplay in most browsers
-            video.preload = 'auto';
-            video.setAttribute('playsinline', '');  // For iOS
-            video.setAttribute('webkit-playsinline', '');  // For older iOS
-            video.setAttribute('x5-playsinline', '');  // For some mobile browsers
-            video.playsInline = true;
-            video.preload = 'auto';
             
-            // Ensure consistent path format (lowercase 'videos')
-            let videoSrc = videoConfig.src;
-            // Normalize the path to use lowercase 'videos'
-            videoSrc = videoSrc.replace(/Videos\//g, 'videos/');
-            // Ensure it starts with a forward slash
-            if (!videoSrc.startsWith('http') && !videoSrc.startsWith('/')) {
-                videoSrc = '/' + videoSrc;
-            }
-            console.log('Loading video from:', videoSrc);
-            video.src = videoSrc;
+            // Set video attributes
+            video.playsInline = true;
+            video.muted = true;
+            video.preload = 'auto';
+            video.loop = videoConfig.loop || false;
+            video.autoplay = true;
+            video.setAttribute('playsinline', '');
+            video.setAttribute('webkit-playsinline', '');
+            video.setAttribute('x5-playsinline', '');
+            video.setAttribute('muted', '');
+            
+            // Set video source - using absolute path
+            video.src = videoConfig.src;
+            console.log('Loading video from:', video.src);
             
             // Position and size the video
             video.style.position = 'fixed';
@@ -399,35 +519,23 @@ function updateMediaForPage(pageNumber) {
             video.style.objectPosition = 'top 20%';
             video.style.borderRadius = '0';
             video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
-            video.style.zIndex = '1000'; // Ensure videos appear above other elements
+            video.style.zIndex = videoConfig.zIndex || '1000';
+            video.style.display = 'block';
             
-            // Simple error logging
+            // Error handling
             video.onerror = function() {
-                console.error('Error loading video:', videoSrc, 'Error:', this.error);
+                console.error('Error loading video:', videoConfig.src, 'Error:', this.error);
             };
             
+            // Try to play the video when loaded
             video.onloadeddata = function() {
                 video.play().catch(error => {
-                    console.error('Error playing video:', videoSrc, error);
+                    console.error('Error playing video:', videoConfig.src, error);
                 });
             };
             
-            // Add a small delay to check if video loads
-            setTimeout(() => {
-                if (video.readyState < 2) { // 0=HAVE_NOTHING, 1=HAVE_METADATA, 2=HAVE_CURRENT_DATA, 3=HAVE_FUTURE_DATA, 4=HAVE_ENOUGH_DATA
-                    console.warn('Video not loading, retrying:', videoSrc);
-                    video.load(); // Try to reload
-                }
-            }, 2000);
-            
-            // Create a container for the video and loading indicator
-            const container = document.createElement('div');
-            container.style.position = 'relative';
-            container.style.display = 'inline-block';
-            container.appendChild(video);
-            container.appendChild(loadingDiv);
-            
-            mediaOverlay.appendChild(container);
+            // Add video to the overlay
+            mediaOverlay.appendChild(video);
         });
         
         mediaOverlay.style.display = 'block';
@@ -440,20 +548,23 @@ function updateMediaForPage(pageNumber) {
 async function preloadAdjacentPages() {
     const preloadPages = 3; // Number of pages to preload on each side
     const promises = [];
-    
+
+    // Preload next pages
     for (let i = 1; i <= preloadPages; i++) {
-        // Preload next pages
-        if (currentLocation + i <= maxLocation) {
+        if (currentLocation + i <= numOfPapers) {
             promises.push(
-                preloadImage(`Photos/${(currentLocation + i) * 2 - 1}.png`),
-                preloadImage(`Photos/${(currentLocation + i) * 2}.png`)
+                preloadImage(`Photos/${(currentLocation + i) * 2 - 1}.jpg`),
+                preloadImage(`Photos/${(currentLocation + i) * 2}.jpg`)
             );
         }
-        // Preload previous pages
+    }
+
+    // Preload previous pages
+    for (let i = 1; i <= preloadPages; i++) {
         if (currentLocation - i >= 1) {
             promises.push(
-                preloadImage(`Photos/${(currentLocation - i) * 2 - 1}.png`),
-                preloadImage(`Photos/${(currentLocation - i) * 2}.png`)
+                preloadImage(`Photos/${(currentLocation - i) * 2 - 1}.jpg`),
+                preloadImage(`Photos/${(currentLocation - i) * 2}.jpg`)
             );
         }
     }
@@ -465,28 +576,44 @@ async function preloadAdjacentPages() {
     }
 }
 
+// Clean up all overlays
+function cleanupOverlays() {
+    document.querySelectorAll('.page-overlay').forEach(overlay => {
+        overlay.remove();
+    });
+    console.log('Cleaned up all overlays');
+}
+
 // Navigate to the next page
 function goNextPage() {
-    if (currentLocation < maxLocation) {
+    if (currentLocation < numOfPapers) {
         const currentPaper = document.querySelector(`#p${currentLocation}`);
-        if (currentPaper) { // Flip the current page
+        if (currentPaper) { 
             currentPaper.classList.add("flipped");
-
-            // Update the book state
-            if (currentLocation === 1) 
-                openBook();
-             else if (currentLocation === numOfPapers) 
-                closeBook(false);
             
-
+            // Update the book state
+            if (currentLocation === 1) {
+                openBook();
+            } else if (currentLocation === numOfPapers) {
+                closeBook(false);
+            }
+            
             // Move to the next page
             currentLocation++;
-
+            
             // Update z-indices for all pages
             updateZIndices();
+            
             // Update media overlay for the new page
             updateMediaForPage(currentLocation);
+            
+            // Update the overlay for the new page
+            updateOverlay(currentLocation);
+            
+            // Preload adjacent pages
             preloadAdjacentPages();
+            
+            console.log(`Navigated to page ${currentLocation}`);
         }
     }
 }
@@ -495,26 +622,39 @@ function goNextPage() {
 function goPrevPage() {
     if (currentLocation > 1) { // First, update the current location before changing UI
         const wasAtEnd = currentLocation === maxLocation;
-        currentLocation--;
-
+        
+        // Update current location
+        const newLocation = currentLocation - 1;
+        
         // Update the book state
-        if (currentLocation === 1) {
+        if (newLocation === 1) {
             closeBook(true);
         } else if (wasAtEnd) { // If we were at the end, open the book when going back
             openBook();
         }
-
-        // Remove the flipped class from the previous page
-        const prevPaper = document.querySelector(`#p${currentLocation}`);
-        if (prevPaper) {
-            prevPaper.classList.remove("flipped");
+        
+        // Update the current location after state changes
+        currentLocation = newLocation;
+        
+        // Remove flipped class from the current page
+        const currentPaper = document.querySelector(`#p${currentLocation}`);
+        if (currentPaper) {
+            currentPaper.classList.remove("flipped");
         }
-
+        
         // Update z-indices for all pages
         updateZIndices();
+        
         // Update media overlay for the new page
         updateMediaForPage(currentLocation);
-            preloadAdjacentPages();
+        
+        // Update the overlay for the new page
+        updateOverlay(currentLocation);
+        
+        // Preload adjacent pages
+        preloadAdjacentPages();
+        
+        console.log(`Navigated back to page ${currentLocation}`);
     }
 }
 

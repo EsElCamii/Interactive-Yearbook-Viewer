@@ -44,8 +44,23 @@ function updateOverlay(paperIndex) {
   // Set the correct image
   cont.style.backgroundImage = `url('${cfg.url}')`;
 
-  // Force mobile styles for testing - TODO: Replace with actual mobile detection
-  const isMobile = true; // Temporarily forcing mobile styles
+  // Enhanced mobile detection
+  const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isSmallViewport = window.innerWidth <= 1024; // Increased breakpoint to catch tablets in landscape
+  const isPortrait = window.innerHeight > window.innerWidth;
+  
+  // Consider it mobile if it's a mobile device OR if the viewport is small
+  const isMobile = isMobileDevice || isSmallViewport;
+  
+  // Log detection for debugging
+  console.log('Device:', {
+    userAgent: navigator.userAgent,
+    isMobileDevice,
+    isSmallViewport,
+    isPortrait,
+    resolution: `${window.innerWidth}x${window.innerHeight}`,
+    finalIsMobile: isMobile
+  });
   
   // Reset all styles
   cont.style.cssText = '';
@@ -72,20 +87,24 @@ function updateOverlay(paperIndex) {
     cont.style.scale = '0.66';
   } else {
     // Desktop styles
-    Object.assign(cont.style, {
+    const desktopStyles = {
+      backgroundImage: `url('${cfg.url}')`,
       position: 'fixed',
       width: '50%',
       height: '50%',
-      transform: 'translate(-47vmin, 0)',
+      transform: 'translate(-46.2vmin, 0)',
       pointerEvents: 'none',
       zIndex: '10000',
       overflow: 'visible',
       display: 'block',
-      scale: '0.87',
       backgroundSize: 'contain',
       backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center'
-    });
+      backgroundPosition: 'center center'
+    };
+    
+    // Apply scale separately as it needs to be set after transform in some browsers
+    Object.assign(cont.style, desktopStyles);
+    cont.style.scale = '0.89';
   }
 
   // Overlay updated for page
@@ -181,68 +200,136 @@ const dynamicVideo = document.getElementById('dynamic-video');
 // translateX and translateY are in pixels and control positioning
 
 const videosConfig = {
-    // Page 38 - diaMuertos
-    38: { 
-        src: '/Videos/diaMuertos.mp4',
-        translateX: '15.5vmin', 
-        translateY: '51vmin', 
-        width: '26vmin',
-        playsInline: true,
-        muted: true,
-        loop: true
+  // Page 38 - diaMuertos
+  38: {
+    src: '/Videos/diaMuertos.mp4',
+    translateX: '15.5vmin',
+    translateY: '51vmin',
+    width: '26vmin',
+    mobile: {
+      transform: 'translate(40.6vmin, 51vmin)',
+      width: '22vmin',
+      height: '12vmin',
+      objectFit: 'cover'
     },
-    // Page 36 - yoga
-    36: { 
-        src: 'Videos/yoga.mp4',
-        translateX: '14vmin', 
-        translateY: '33vmin',
-        playsInline: true,
-        muted: true,
-        loop: true
+    playsInline: true,
+    muted: true,
+    loop: true
+  },
+
+  // Page 36 - yoga
+  36: {
+    src: 'Videos/yoga.mp4',
+    translateX: '14vmin',
+    translateY: '33vmin',
+        // Mobile-specific overrides
+    mobile: {
+      transform: 'translate(36.8vmin, 34.5vmin) scale(0.835)',
+      width: '29.5vmin',
+      height: '31vmin'
     },
-    // Page 43 - Multiple videos
-    43: [
-        { 
-            src: '/Videos/baile.mp4',
-            translateX: '16vmin', 
-            translateY: '51vmin', 
-            width: '30vmin', 
-            maxHeight: '15vmin',
-            playsInline: true,
-            muted: true,
-            loop: true
-        },
-        { 
-            src: '/Videos/flag.mp4',
-            translateX: '16.5vmin', 
-            translateY: '34vmin', 
-            width: '27vmin', 
-            maxHeight: '15vmin',
-            playsInline: true,
-            muted: true,
-            loop: true
-        },
-        { 
-            src: '/Videos/ivan.mp4',
-            translateX: '51vmin', 
-            translateY: '34.8vmin', 
-            width: '26.5vmin', 
-            maxHeight: '31vmin',
-            playsInline: true,
-            muted: true,
-            loop: true
-        }
-    ],
-    // Photo 90 is the back of paper 45, which is page 46
-    46: [
-        { src: 'Videos/agua_baile.mp4', translateX: '17vmin', translateY: '34vmin', width: '26.5vmin', maxHeight: '18vmin' },
-        { src: 'Videos/mecanico.mp4', translateX: '50.2vmin', translateY: '51vmin', width: '26.5vmin', maxHeight: '18vmin' }
-    ],
-    // Photo 91 is the back of paper 45, which is page 47
-    49: [    
-        { src: 'Videos/music.mp4', translateX: '48.5vmin', translateY: '34.7vmin', width: '32.5vmin', height: '30.5vmin' }
-    ]
-    // Add more pages => {src, translateX, translateY} as needed
+    playsInline: true,
+    muted: true,
+    loop: true
+  },
+
+  // Page 43 - Multiple videos
+  43: [
+    {
+      src: '/Videos/baile.mp4',
+      translateX: '16vmin',
+      translateY: '51vmin',
+      width: '30vmin',
+      maxHeight: '15vmin',
+      mobile: {
+        transform: 'translate(41vmin, 16vmin)',
+        width: '24vmin',
+        height: '12vmin'
+      },
+      playsInline: true,
+      muted: true,
+      loop: true
+    },
+    {
+      src: '/Videos/flag.mp4',
+      translateX: '16.5vmin',
+      translateY: '34vmin',
+      width: '27vmin',
+      maxHeight: '15vmin',
+      mobile: {
+        transform: 'translate(17.2vmin, 30vmin)',
+        width: '24vmin',
+        height: '12vmin'
+      },
+      playsInline: true,
+      muted: true,
+      loop: true
+    },
+    {
+      src: '/Videos/ivan.mp4',
+      translateX: '51vmin',
+      translateY: '34.8vmin',
+      width: '26.5vmin',
+      maxHeight: '31vmin',
+            // Mobile-specific overrides
+      mobile: {
+        transform: 'scale(0.835) translate(24.6vmin, 40vmin)',
+        width: '28vmin',
+      },
+      playsInline: true,
+      muted: true,
+      loop: true
+    }
+  ],
+
+  // Photo 90 is the back of paper 45, which is page 46
+  46: [
+    {
+      src: 'Videos/agua_baile.mp4',
+      translateX: '17vmin',
+      translateY: '34vmin',
+      width: '26.5vmin',
+      maxHeight: '18vmin',
+      mobile: {
+        transform: 'translate(41.6vmin, 34vmin)',
+        width: '22.5vmin',
+        height: '14vmin'
+      }
+    },
+    {
+      src: 'Videos/mecanico.mp4',
+      translateX: '50.2vmin',
+      translateY: '51vmin',
+      width: '26.5vmin',
+      maxHeight: '18vmin',
+      mobile: {
+        transform: 'scale(0.835) translate(54.3vmin, 59vmin)',
+        width: '27vmin',
+        height: '15vmin'
+      }
+    }
+  ],
+
+  // Photo 91 is the back of paper 45, which is page 47
+  49: [
+    {
+      src: 'Videos/music.mp4',
+      translateX: '48.5vmin',
+      translateY: '34.7vmin',
+      width: '32.5vmin',
+      height: '30.5vmin',
+      mobile: {
+        translateX: '71.6vmin',
+        translateY: '37vmin',
+        width: '28vmin',
+        height: '26vmin',
+        scale: '1'
+      },
+      playsInline: true,
+      muted: true,
+      loop: true
+    }
+  ]
 };
 
 // Dynamic root margin for lazy loading based on device performance
@@ -550,18 +637,32 @@ function updateMediaForPage(pageNumber) {
             // Loading video
             
             // Enhanced mobile detection
-            const isMobile = (function() {
-                // Check user agent for mobile devices
-                const userAgent = navigator.userAgent.toLowerCase();
-                const isIOS = /iphone|ipad|ipod/.test(userAgent);
-                const isAndroid = /android/.test(userAgent);
+            const detectMobile = () => {
+                // Check viewport width first (faster)
+                const isSmallScreen = window.innerWidth <= 1024 || 
+                                    window.innerHeight <= 844; // Your phone's height
                 
-                // Check viewport width and device pixel ratio for tablets
-                const isTablet = window.innerWidth <= 1024 && window.devicePixelRatio >= 1;
+                if (!isSmallScreen) return false;
                 
-                // Consider it mobile if it's iOS, Android, or a tablet
-                return isIOS || isAndroid || isTablet || window.innerWidth <= 768;
-            })();
+                // Check user agent for additional confirmation
+                const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                const isMobileUserAgent = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini|mobile/i.test(userAgent);
+                
+                // For testing: Force mobile in development
+                // return true;
+                
+                return isMobileUserAgent || window.innerWidth <= 1024;
+            };
+            
+            const isMobileDevice = detectMobile();
+            
+            // Debug logging
+            console.log('Device Info:', {
+                isMobile: isMobileDevice,
+                width: window.innerWidth,
+                height: window.innerHeight,
+                userAgent: navigator.userAgent
+            });
             
             // Save the source before resetting styles
             const videoSrc = video.src;
@@ -570,46 +671,102 @@ function updateMediaForPage(pageNumber) {
             video.style.cssText = '';
             video.src = videoSrc;
             
-            if (isMobile) {
-                // Mobile styles object with exact specifications
-                const mobileVideoStyles = {
+            // Function to apply styles with important flags
+            const applyStyles = (element, styles) => {
+                Object.entries(styles).forEach(([prop, value]) => {
+                    if (value !== undefined && value !== null) {
+                        element.style.setProperty(prop.replace(/[A-Z]/g, m => '-' + m.toLowerCase()), value, 'important');
+                    }
+                });
+            };
+            
+            if (isMobileDevice && videoConfig.mobile) {
+                // Mobile styles - use video-specific mobile config
+                const mobileConfig = videoConfig.mobile;
+                
+                // Debug log the mobile config
+                console.log('Mobile config for video:', {
+                    src: videoConfig.src,
+                    config: mobileConfig
+                });
+                
+                // Start with an empty styles object
+                const mobileStyles = {};
+                
+                // If transform is explicitly set, use it as-is
+                if (mobileConfig.transform) {
+                    mobileStyles.transform = mobileConfig.transform;
+                } 
+                // Otherwise, build transform from individual properties
+                else {
+                    const transformParts = [];
+                    
+                    // Add translate if X or Y is specified
+                    if (mobileConfig.translateX !== undefined || mobileConfig.translateY !== undefined) {
+                        const x = mobileConfig.translateX || '0';
+                        const y = mobileConfig.translateY || '0';
+                        transformParts.push(`translate(${x}, ${y})`);
+                    }
+                    
+                    // Add scale if specified
+                    if (mobileConfig.scale) {
+                        transformParts.push(`scale(${mobileConfig.scale})`);
+                    }
+                    
+                    // Combine all transform parts
+                    if (transformParts.length > 0) {
+                        mobileStyles.transform = transformParts.join(' ');
+                    }
+                }
+                
+                // Copy all other properties
+                Object.keys(mobileConfig).forEach(key => {
+                    if (!['translateX', 'translateY', 'transform', 'scale'].includes(key)) {
+                        mobileStyles[key] = mobileConfig[key];
+                    }
+                });
+                
+                // Debug log the styles being applied
+                console.log('Applying mobile styles:', mobileStyles);
+                
+                // Apply base styles
+                applyStyles(video, mobileStyles);
+                
+                // Log applied styles for debugging
+                console.log('Applied mobile styles to video:', {
+                    src: videoConfig.src,
+                    styles: mobileStyles,
+                    scale: mobileConfig.scale
+                });
+                
+                // Make the style object non-writable to prevent overrides
+                Object.defineProperty(video, 'style', {
+                    value: video.style,
+                    writable: false
+                });
+            } else {
+                // Desktop styles - apply all at once
+                const desktopStyles = {
                     position: 'fixed',
-                    width: '29vmin',
-                    transform: 'translate(44vmin, 39vmin)',
+                    width: videoConfig.width || '29vmin',
+                    transform: `translate(${videoConfig.translateX}, ${videoConfig.translateY})`,
                     objectFit: 'cover',
-                    borderRadius: '0px',
-                    boxShadow: 'rgba(0, 0, 0, 0.5) 0px 0px 20px',
-                    zIndex: '1000',
+                    objectPosition: 'top 20%',
+                    borderRadius: '0',
+                    boxShadow: '0 0 20px rgba(0, 0, 0, 0.5)',
+                    zIndex: videoConfig.zIndex || '1000',
                     display: 'block'
                 };
                 
-                // Apply styles
-                Object.assign(video.style, mobileVideoStyles);
-                
-                // Apply scale separately for better browser compatibility
-                video.style.scale = '0.845';
-            } else {
-                // Desktop styles
-                video.style.width = videoConfig.width || '29vmin';
                 if (videoConfig.height) {
-                    video.style.height = videoConfig.height;
+                    desktopStyles.height = videoConfig.height;
                 } else if (videoConfig.maxHeight) {
-                    video.style.maxHeight = videoConfig.maxHeight;
-                    video.style.height = 'auto';
+                    desktopStyles.maxHeight = videoConfig.maxHeight;
+                    desktopStyles.height = 'auto';
                 }
-                video.style.transform = `translate(${videoConfig.translateX}, ${videoConfig.translateY})`;
-                video.style.objectFit = 'cover';
-                video.style.objectPosition = 'top 20%';
-                video.style.borderRadius = '0';
-                video.style.boxShadow = '0 0 20px rgba(0, 0, 0, 0.5)';
-                video.style.zIndex = videoConfig.zIndex || '1000';
-                video.style.display = 'block';
+                
+                Object.assign(video.style, desktopStyles);
             }
-            
-            // Error handling
-            video.onerror = function() {
-                console.error('Error loading video:', videoConfig.src, 'Error:', this.error);
-            };
             
             // Try to play the video when loaded
             video.onloadeddata = function() {
